@@ -9,33 +9,33 @@ namespace library.Model
 {
     public class Usuario
     {
-        private long id { get; set; }
-        
-        [Required]
-        private string nome { get; set; }
+        public Guid id { get; set; }
 
         [Required]
-        private string email { get; set; }
+        public string nome { get; set; }
 
         [Required]
-        private string senha { get; set; }
+        public string email { get; set; }
 
         [Required]
-        private int cpf { get; set; }
+        public string senha { get; set; }
 
         [Required]
-        private string status { get; set; }
+        public int cpf { get; set; }
 
         [Required]
-        private string perfil { get; set; }
+        public string status { get; set; }
 
         [Required]
-        private string area { get; set; }
+        public string perfil { get; set; }
 
         [Required]
-        private DateTime dtCriacao { get; set; }
+        public string area { get; set; }
 
         [Required]
-        private DateTime dtAlteracao { get; set; }
+        public DateTime dtCriacao { get; set; }
+
+        [Required]
+        public DateTime dtAlteracao { get; set; }
     }
 }
