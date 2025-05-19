@@ -18,7 +18,7 @@ namespace service.Service
             return _context.Moto.ToList();
         }
 
-        public Moto? GetById(int id)
+        public Moto? GetById(Guid id)
         {
             return _context.Moto.Find(id);
         }
@@ -44,7 +44,7 @@ namespace service.Service
             return moto;
         }
 
-        public bool Update(int id, Moto updatedMoto)
+        public bool Update(Guid id, Moto updatedMoto)
         {
             var existingMoto = GetById(id);
             if (existingMoto == null)
@@ -63,7 +63,7 @@ namespace service.Service
             return true;
         }
 
-        public bool Delete(int id)
+        public bool Delete(Guid id)
         {
             var moto = GetById(id);
             if (moto == null)

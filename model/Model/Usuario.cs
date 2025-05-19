@@ -12,25 +12,25 @@ namespace library.Model
         public Guid id { get; set; }
 
         [Required]
-        public string nome { get; set; }
+        public required string nome { get; set; }
 
         [Required]
-        public string email { get; set; }
+        public required string email { get; set; }
 
         [Required]
-        public string senha { get; set; }
+        public required string senha { get; set; }
 
         [Required]
         public int cpf { get; set; }
 
         [Required]
-        public string status { get; set; }
+        public required string status { get; set; }
 
         [Required]
-        public string perfil { get; set; }
+        public required string perfil { get; set; }
 
         [Required]
-        public string area { get; set; }
+        public required string area { get; set; }
 
         [Required]
         public DateTime dtCriacao { get; set; }

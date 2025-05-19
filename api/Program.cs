@@ -45,6 +45,13 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v2/swagger.json", "TechLab API v1");
+    c.RoutePrefix = string.Empty;
+});
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

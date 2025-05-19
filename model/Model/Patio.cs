@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;namespace library.Model
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+namespace library.Model
 {
     public class Patio
     {
@@ -12,8 +14,7 @@ using System.Linq;namespace library.Model
         public int vagasDisponiveis { get; set; }
 
         public required string descricao { get; set; }
-        public bool ativo { get; set; }
-
+        
         public ICollection<Moto> ?motos { get; set; }
 
         public DateTime dataCadastro { get; set; }
