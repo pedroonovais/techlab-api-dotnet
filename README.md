@@ -63,6 +63,32 @@ https://localhost:{porta}/swagger
 
 ## 📬 Endpoints da API - TechLab
 
+---
+
+### 🔹 Usuários (`/api/Usuario`)
+
+| Método | Rota                     | Descrição                            | Corpo da Requisição                                                             |
+|--------|--------------------------|--------------------------------------|----------------------------------------------------------------------------------|
+| GET    | `/api/Usuario`           | Lista todos os usuários              | -                                                                                |
+| GET    | `/api/Usuario/{id}`      | Retorna um usuário por ID            | -                                                                                |
+| POST   | `/api/Usuario`           | Cria um novo usuário                 | `{ "nome": "", "email": "", "cpf": "", "telefone": "" }`                         |
+| PUT    | `/api/Usuario/{id}`      | Atualiza um usuário existente        | `{ "id": 0, "nome": "", "email": "", "cpf": "", "telefone": "" }`               |
+| DELETE | `/api/Usuario/{id}`      | Remove um usuário pelo ID            | -                                                                                |
+
+---
+
+### 🔹 Motos (`/api/Moto`)
+
+| Método | Rota                 | Descrição                             | Corpo da Requisição                                                                 |
+|--------|----------------------|---------------------------------------|--------------------------------------------------------------------------------------|
+| GET    | `/api/Moto`          | Lista todas as motos registradas      | -                                                                                    |
+| GET    | `/api/Moto/{id}`     | Retorna uma moto por ID               | -                                                                                    |
+| POST   | `/api/Moto`          | Cadastra uma nova moto                | `{ "placa": "", "modelo": "", "cor": "", "codigoRfid": "", "usuarioId": 1 }`        |
+| PUT    | `/api/Moto/{id}`     | Atualiza os dados de uma moto         | `{ "id": 0, "placa": "", "modelo": "", "cor": "", "codigoRfid": "", "usuarioId": 1 }`|
+| DELETE | `/api/Moto/{id}`     | Remove uma moto pelo ID               | -                                                                                    |
+
+---
+
 ### 🔹 Sensores (`/api/Sensor`)
 
 | Método | Rota                   | Descrição                                | Corpo da Requisição                                           |
@@ -79,10 +105,10 @@ https://localhost:{porta}/swagger
 
 | Método | Rota                          | Descrição                                         | Corpo da Requisição                                                                 |
 |--------|-------------------------------|---------------------------------------------------|--------------------------------------------------------------------------------------|
-| GET    | `/api/LeituraRfid`           | Lista todas as leituras RFID                      | -                                                                                    |
-| GET    | `/api/LeituraRfid/{id}`      | Retorna uma leitura RFID por ID                   | -                                                                                    |
-| POST   | `/api/LeituraRfid`           | Registra uma nova leitura RFID                   | `{ "codigoRfid": "", "dataLeitura": "2025-05-19T13:00:00", "sensorId": 1 }`         |
-| DELETE | `/api/LeituraRfid/{id}`      | Remove uma leitura RFID pelo ID                   | -                                                                                    |
+| GET    | `/api/LeituraRfid`            | Lista todas as leituras RFID                     | -                                                                                    |
+| GET    | `/api/LeituraRfid/{id}`       | Retorna uma leitura RFID por ID                  | -                                                                                    |
+| POST   | `/api/LeituraRfid`            | Registra uma nova leitura RFID                  | `{ "codigoRfid": "", "dataLeitura": "2025-05-19T13:00:00", "sensorId": 1 }`         |
+| DELETE | `/api/LeituraRfid/{id}`       | Remove uma leitura RFID pelo ID                  | -                                                                                    |
 
 ---
 
@@ -95,6 +121,8 @@ https://localhost:{porta}/swagger
 | POST   | `/api/Patio`        | Cria um novo pátio                     | `{ "nome": "", "localizacao": "", "ativo": true }`                     |
 | PUT    | `/api/Patio/{id}`   | Atualiza um pátio                      | `{ "id": 0, "nome": "", "localizacao": "", "ativo": true }`            |
 | DELETE | `/api/Patio/{id}`   | Remove um pátio pelo ID                | -                                                                      |
+
+
 
 
 
