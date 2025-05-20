@@ -48,5 +48,20 @@ namespace service.Service
             _context.SaveChanges();
             return true;
         }
+
+        public LeituraRfid? Update(Guid id, LeituraRfid leituraAtualizada)
+        {
+            var leituraExistente = _context.LeituraRfid.FirstOrDefault(l => l.Id == id);
+
+            if (leituraExistente == null)
+                return null;
+
+            leituraExistente.RfidId = leituraAtualizada.RfidId;
+            leituraExistente.SensorId = leituraAtualizada.SensorId;
+            leituraExistente.Timestamp = leituraAtualizada.Timestamp;
+
+            _context.SaveChanges();
+            return leituraExistente;
+        }
     }
 }

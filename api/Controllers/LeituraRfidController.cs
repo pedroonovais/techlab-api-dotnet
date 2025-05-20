@@ -87,5 +87,32 @@ namespace api.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        /// Atualiza uma leitura RFID existente.
+        /// </summary>
+        /// <param name="id">ID da leitura a ser atualizada.</param>
+        /// <param name="leituraAtualizada">Dados atualizados da leitura.</param>
+        /// <response code="200">Leitura atualizada com sucesso.</response>
+        /// <response code="400">Dados inválidos.</response>
+        /// <response code="404">Leitura não encontrada.</response>
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult Put(Guid id, [FromBody] LeituraRfid leituraAtualizada)
+        {
+            if (id == Guid.Empty || leituraAtualizada == null ||
+                leituraAtualizada.RfidId == Guid.Empty || leituraAtualizada.SensorId == Guid.Empty)
+            {
+                return BadRequest("Dados inválidos.");
+            }
+
+            var leitura = _service.Update(id, leituraAtualizada);
+            if (leitura == null)
+                return NotFound();
+
+            return Ok(leitura);
+        }
     }
 }

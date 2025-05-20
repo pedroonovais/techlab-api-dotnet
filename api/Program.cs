@@ -10,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<MotoService>();
 builder.Services.AddScoped<PatioService>();
 builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddScoped<SensorService>();
+builder.Services.AddScoped<LeituraRfidService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

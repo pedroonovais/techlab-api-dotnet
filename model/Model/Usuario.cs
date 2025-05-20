@@ -21,7 +21,7 @@ namespace library.Model
         public required string senha { get; set; }
 
         [Required]
-        public int cpf { get; set; }
+        public string cpf { get; set; }
 
         [Required]
         public required string status { get; set; }
