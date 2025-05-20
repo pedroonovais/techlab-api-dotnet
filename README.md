@@ -63,8 +63,6 @@ https://localhost:{porta}/swagger
 
 ## 📬 Endpoints da API - TechLab
 
----
-
 ### 🔹 Usuários (`/api/Usuario`)
 
 | Método | Rota                     | Descrição                            | Corpo da Requisição                                                             |
