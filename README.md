@@ -1,26 +1,29 @@
 # TechLab Api DotNet
 
-**TechLab Api DotNet** é uma API desenvolvida em .NET com o objetivo de simular o funcionamento básico de uma rede social, permitindo o gerenciamento de usuários e publicações (posts). O projeto adota uma arquitetura em camadas com uso de Entity Framework Core conectado a um banco de dados Oracle, e fornece documentação interativa via Swagger.
+**TechLab Api DotNet** é uma API desenvolvida em .NET para o sistema de **gerenciamento de pátios**, com foco no controle de localização de motos utilizando sensores e tecnologia RFID. A solução é modularizada em camadas e utiliza Entity Framework Core com banco de dados Oracle. Conta também com documentação interativa via Swagger.
 
 ---
 
 ## 📌 Funcionalidades
 
-- Cadastro, visualização, edição e exclusão de **usuários**
-- Criação, exibição, atualização e remoção de **posts**
-- API RESTful com retorno em JSON
-- Documentação interativa com Swagger UI
+- Gerenciamento de **usuários**
+- Registro e controle de **motos** associadas a usuários
+- Cadastro e monitoramento de **sensores** posicionados no pátio
+- Registro de **leituras RFID** para rastrear a movimentação das motos
+- Administração de **pátios**, com possibilidade de ativar/desativar unidades
+- API RESTful com respostas em JSON
+- Documentação interativa via Swagger
 - Integração com Oracle via Entity Framework Core
-- Migrações de banco de dados com EF Core
+- Migrações de banco com EF Core
 
 ---
 
 ## 🏗 Estrutura do Projeto
 
 - **api**: Camada de apresentação (controllers, Swagger, configurações iniciais)
-- **service**: Camada de regras de negócio (serviços)
-- **data**: Contexto de banco de dados (AppDbContext, migrations)
-- **library**: Modelos de domínio (User, Post, etc.)
+- **service**: Camada de regras de negócio (serviços e lógica da aplicação)
+- **data**: Acesso a dados e contexto do banco (AppDbContext, migrations)
+- **library**: Camada de domínio (entidades e modelos do sistema)
 
 ---
 
@@ -39,89 +42,29 @@
 
 Clone o repositório:
 
+```bash
 git clone https://github.com/pedroonovais/techlab-api-dotnet
 cd techlab-api-dotnet
+```
 
 Restaure os pacotes:
 
+```bash
 dotnet restore
+```
 
 Aplique as migrations:
-
+```bash
 dotnet ef database update --project ./data --startup-project ./api
+```
 
 Execute a aplicação:
-
+```bash
 cd api
 dotnet run
+```
 
 Acesse a documentação Swagger:
-
+```bash
 https://localhost:{porta}/swagger
-
----
-
-## 📬 Endpoints da API - TechLab
-
-### 🔹 Usuários (`/api/Usuario`)
-
-| Método | Rota                     | Descrição                            | Corpo da Requisição                                                             |
-|--------|--------------------------|--------------------------------------|----------------------------------------------------------------------------------|
-| GET    | `/api/Usuario`           | Lista todos os usuários              | -                                                                                |
-| GET    | `/api/Usuario/{id}`      | Retorna um usuário por ID            | -                                                                                |
-| POST   | `/api/Usuario`           | Cria um novo usuário                 | `{ "nome": "", "email": "", "cpf": "", "telefone": "" }`                         |
-| PUT    | `/api/Usuario/{id}`      | Atualiza um usuário existente        | `{ "id": 0, "nome": "", "email": "", "cpf": "", "telefone": "" }`               |
-| DELETE | `/api/Usuario/{id}`      | Remove um usuário pelo ID            | -                                                                                |
-
----
-
-### 🔹 Motos (`/api/Moto`)
-
-| Método | Rota                 | Descrição                             | Corpo da Requisição                                                                 |
-|--------|----------------------|---------------------------------------|--------------------------------------------------------------------------------------|
-| GET    | `/api/Moto`          | Lista todas as motos registradas      | -                                                                                    |
-| GET    | `/api/Moto/{id}`     | Retorna uma moto por ID               | -                                                                                    |
-| POST   | `/api/Moto`          | Cadastra uma nova moto                | `{ "placa": "", "modelo": "", "cor": "", "codigoRfid": "", "usuarioId": 1 }`        |
-| PUT    | `/api/Moto/{id}`     | Atualiza os dados de uma moto         | `{ "id": 0, "placa": "", "modelo": "", "cor": "", "codigoRfid": "", "usuarioId": 1 }`|
-| DELETE | `/api/Moto/{id}`     | Remove uma moto pelo ID               | -                                                                                    |
-
----
-
-### 🔹 Sensores (`/api/Sensor`)
-
-| Método | Rota                   | Descrição                                | Corpo da Requisição                                           |
-|--------|------------------------|------------------------------------------|----------------------------------------------------------------|
-| GET    | `/api/Sensor`          | Lista todos os sensores                   | -                                                              |
-| GET    | `/api/Sensor/{id}`     | Retorna um sensor por ID                  | -                                                              |
-| POST   | `/api/Sensor`          | Cria um novo sensor                       | `{ "codigo": "", "descricao": "", "localizacao": "" }`         |
-| PUT    | `/api/Sensor/{id}`     | Atualiza os dados de um sensor            | `{ "id": 0, "codigo": "", "descricao": "", "localizacao": "" }`|
-| DELETE | `/api/Sensor/{id}`     | Remove um sensor pelo ID                  | -                                                              |
-
----
-
-### 🔹 Leituras RFID (`/api/LeituraRfid`)
-
-| Método | Rota                          | Descrição                                         | Corpo da Requisição                                                                 |
-|--------|-------------------------------|---------------------------------------------------|--------------------------------------------------------------------------------------|
-| GET    | `/api/LeituraRfid`            | Lista todas as leituras RFID                     | -                                                                                    |
-| GET    | `/api/LeituraRfid/{id}`       | Retorna uma leitura RFID por ID                  | -                                                                                    |
-| POST   | `/api/LeituraRfid`            | Registra uma nova leitura RFID                  | `{ "codigoRfid": "", "dataLeitura": "2025-05-19T13:00:00", "sensorId": 1 }`         |
-| DELETE | `/api/LeituraRfid/{id}`       | Remove uma leitura RFID pelo ID                  | -                                                                                    |
-
----
-
-### 🔹 Pátios (`/api/Patio`)
-
-| Método | Rota                | Descrição                              | Corpo da Requisição                                                   |
-|--------|---------------------|----------------------------------------|------------------------------------------------------------------------|
-| GET    | `/api/Patio`        | Lista todos os pátios cadastrados      | -                                                                      |
-| GET    | `/api/Patio/{id}`   | Retorna os dados de um pátio específico| -                                                                      |
-| POST   | `/api/Patio`        | Cria um novo pátio                     | `{ "nome": "", "localizacao": "", "ativo": true }`                     |
-| PUT    | `/api/Patio/{id}`   | Atualiza um pátio                      | `{ "id": 0, "nome": "", "localizacao": "", "ativo": true }`            |
-| DELETE | `/api/Patio/{id}`   | Remove um pátio pelo ID                | -                                                                      |
-
-
-
-
-
-
+```
