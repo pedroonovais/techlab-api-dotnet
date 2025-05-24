@@ -68,3 +68,66 @@ Acesse a documentação Swagger:
 ```bash
 https://localhost:{porta}/swagger
 ```
+
+---
+
+## 📬 Endpoints da API
+
+### 🔹 Usuários (`/api/Usuario`)
+
+| Método | Rota                         | Descrição                   |
+|--------|------------------------------|-----------------------------|
+| GET    | `/api/Usuario`               | Lista todos os usuários     |
+| GET    | `/api/Usuario/{id}`          | Retorna um usuário por ID   |
+| POST   | `/api/Usuario`               | Cria um novo usuário        |
+| PUT    | `/api/Usuario/{id}`          | Atualiza um usuário         |
+| DELETE | `/api/Usuario/{id}`          | Remove um usuário           |
+
+---
+
+### 🔹 Motos (`/api/Moto`)
+
+| Método | Rota                         | Descrição                   |
+|--------|------------------------------|-----------------------------|
+| GET    | `/api/Moto`                  | Lista todas as motos        |
+| GET    | `/api/Moto/{id}`             | Retorna uma moto por ID     |
+| POST   | `/api/Moto`                  | Cadastra uma nova moto      |
+| PUT    | `/api/Moto/{id}`             | Atualiza os dados da moto   |
+| DELETE | `/api/Moto/{id}`             | Remove uma moto             |
+
+---
+
+### 🔹 Sensores (`/api/Sensor`)
+
+| Método | Rota                         | Descrição                         |
+|--------|------------------------------|-----------------------------------|
+| GET    | `/api/Sensor`                | Lista todos os sensores           |
+| GET    | `/api/Sensor/{id}`           | Retorna um sensor por ID          |
+| POST   | `/api/Sensor`                | Cadastra um novo sensor           |
+| PUT    | `/api/Sensor/{id}`           | Atualiza um sensor existente      |
+| DELETE | `/api/Sensor/{id}`           | Remove um sensor                  |
+
+---
+
+### 🔹 Leituras RFID (`/api/leituraRfid`)
+
+| Método | Rota                                 | Descrição                             |
+|--------|--------------------------------------|---------------------------------------|
+| GET    | `/api/leituraRfid`                   | Lista todas as leituras RFID          |
+| GET    | `/api/leituraRfid/{id}`              | Retorna uma leitura por ID            |
+| POST   | `/api/leituraRfid`                   | Registra uma nova leitura RFID        |
+| PUT    | `/api/leituraRfid/{id}`              | Atualiza uma leitura RFID             |
+| DELETE | `/api/leituraRfid/{id}`              | Remove uma leitura RFID               |
+
+---
+
+### 🔹 Pátios (`/api/Patio`)
+
+| Método | Rota                         | Descrição                           |
+|--------|------------------------------|-------------------------------------|
+| GET    | `/api/Patio`                 | Lista todos os pátios               |
+| GET    | `/api/Patio/{id}`            | Retorna um pátio por ID             |
+| POST   | `/api/Patio`                 | Cadastra um novo pátio              |
+| PUT    | `/api/Patio/{id}`            | Atualiza os dados de um pátio       |
+| DELETE | `/api/Patio/{id}`            | Remove um pátio                     |
+
