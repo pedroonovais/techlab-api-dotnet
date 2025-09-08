@@ -87,22 +87,23 @@ namespace data.Migrations
                     id = table.Column<Guid>(type: "RAW(16)", nullable: false),
                     marca = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
                     modelo = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    Patioid = table.Column<Guid>(type: "RAW(16)", nullable: true)
+                    placa = table.Column<string>(type: "NVARCHAR2(10)", nullable: false),
+                    chassi = table.Column<string>(type: "NVARCHAR2(200)", nullable: false),
+                    motor = table.Column<string>(type: "NVARCHAR2(200)", nullable: false),
+                    imeiIot = table.Column<string>(type: "NVARCHAR2(200)", nullable: false),
+                    rfId = table.Column<long>(type: "NUMBER(19)", nullable: false),
+                    dataCadastro = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
+                    dataAtualizacao = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MOTO", x => x.id);
                     table.ForeignKey(
-                        name: "FK_MOTO_PATIO_Patioid",
-                        column: x => x.Patioid,
-                        principalTable: "PATIO",
+                        name: "FK_MOTO_RFID_rfId",
+                        column: x => x.rfId,
+                        principalTable: "rfId",
                         principalColumn: "id");
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MOTO_Patioid",
-                table: "MOTO",
-                column: "Patioid");
         }
 
         /// <inheritdoc />

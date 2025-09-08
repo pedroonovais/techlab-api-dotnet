@@ -6,18 +6,10 @@ namespace library.Model
 {
     public class Patio
     {
-        public Guid id { get; set; }
-        public required string nome { get; set; }
-        public required string localizacao { get; set; }
-
-        public int capacidadeTotal { get; set; }
-        public int vagasDisponiveis { get; set; }
-
-        public required string descricao { get; set; }
-        
-        public ICollection<Moto> ?motos { get; set; }
-
-        public DateTime dataCadastro { get; set; }
-        public DateTime dataAtualizacao { get; set; }
+        public Guid Id { get; set; }
+        public required string Nome { get; set; }
+        public required string Localizacao { get; set; }
+        public DateTime DtCadastro { get; set; }
+        public DateTime DtAtualizacao { get; set; }
     }
 }
