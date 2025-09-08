@@ -14,6 +14,7 @@ namespace library.Model
         private string? Placa { get; set; }
         private string? Chassi { get; set; }
         private Guid IdStatusOperacional { get; set; }
+        private Guid IdRastreador { get; set; }
         private DateTime DtCadastro { get; set; }
         private DateTime DtAtualizacao { get; set; }
         private bool Ativo { get; set; }

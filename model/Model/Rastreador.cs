@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace library.Model
 {
-    public class Perfil
+    public class Rastreador
     {
-        public Guid Id { get; set; }
-        public required string Nome { get; set; }
-        public required short NivelAcesso { get; set; }
+        private Guid IdRastreador { get; set; }
+        private string? NumeroSerie { get; set; }
+        private string? Modelo { get; set; }
         private DateTime DtCadastro { get; set; }
         private DateTime DtAtualizacao { get; set; }
         private bool Ativo { get; set; }
