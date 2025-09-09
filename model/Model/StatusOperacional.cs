@@ -9,7 +9,7 @@ namespace library.Model
 {
     public class StatusOperacional
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
         public string Descricao { get; set; }

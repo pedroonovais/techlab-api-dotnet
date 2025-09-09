@@ -8,7 +8,7 @@ namespace library.Model
 {
     public class Moto
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public required string Marca { get; set; }
         public required string Modelo { get; set; }
         public string? Placa { get; set; }

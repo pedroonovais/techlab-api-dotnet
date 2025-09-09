@@ -8,7 +8,7 @@ namespace library.Model
 {
     public class Perfil
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public required string Nome { get; set; }
         public required short NivelAcesso { get; set; }
         public DateTime DtCadastro { get; set; }

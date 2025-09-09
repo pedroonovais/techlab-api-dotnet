@@ -8,7 +8,7 @@ namespace library.Model
 {
     public class Rastreador
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string? NumeroSerie { get; set; }
         public string? Modelo { get; set; }
         public DateTime DtCadastro { get; set; }

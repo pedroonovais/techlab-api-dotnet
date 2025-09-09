@@ -9,7 +9,7 @@ namespace library.Model
 {
     public class Usuario
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
         public required string Nome { get; set; }
