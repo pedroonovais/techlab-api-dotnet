@@ -28,12 +28,12 @@ namespace service.Service
             if (usuario == null)
                 throw new ArgumentNullException(nameof(usuario));
 
-            if (string.IsNullOrWhiteSpace(usuario.nome) || string.IsNullOrWhiteSpace(usuario.email))
+            if (string.IsNullOrWhiteSpace(usuario.Nome) || string.IsNullOrWhiteSpace(usuario.Email))
                 throw new ArgumentException("Nome e e-mail são obrigatórios.");
 
-            usuario.dtCriacao = DateTime.UtcNow;
-            usuario.dtAlteracao = DateTime.UtcNow;
-            usuario.id = Guid.NewGuid();
+            usuario.DtCriacao = DateTime.UtcNow;
+            usuario.DtAlteracao = DateTime.UtcNow;
+            usuario.Id = Guid.NewGuid();
 
             _context.Usuario.Add(usuario);
             _context.SaveChanges();
@@ -46,10 +46,10 @@ namespace service.Service
             if (existingUsuario == null)
                 return false;
 
-            if (string.IsNullOrWhiteSpace(updatedUsuario.nome) || string.IsNullOrWhiteSpace(updatedUsuario.email))
+            if (string.IsNullOrWhiteSpace(updatedUsuario.Nome) || string.IsNullOrWhiteSpace(updatedUsuario.Email))
                 throw new ArgumentException("Nome e e-mail são obrigatórios.");
 
-            updatedUsuario.dtAlteracao = DateTime.UtcNow;
+            updatedUsuario.DtAlteracao = DateTime.UtcNow;
 
             _context.Entry(existingUsuario).State = EntityState.Detached;
             _context.Usuario.Update(updatedUsuario);

@@ -56,11 +56,11 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Post([FromBody] Usuario usuario)
         {
-            if (usuario == null || string.IsNullOrWhiteSpace(usuario.nome) || string.IsNullOrWhiteSpace(usuario.email))
+            if (usuario == null || string.IsNullOrWhiteSpace(usuario.Nome) || string.IsNullOrWhiteSpace(usuario.Email))
                 return BadRequest("Dados inválidos.");
 
             var newUsuario = _service.Create(usuario);
-            return CreatedAtAction(nameof(GetById), new { id = newUsuario.id }, newUsuario);
+            return CreatedAtAction(nameof(GetById), new { id = newUsuario.Id }, newUsuario);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult Put(Guid id, [FromBody] Usuario usuario)
         {
-            if (usuario == null || id != usuario.id)
+            if (usuario == null || id != usuario.Id)
                 return BadRequest("Dados inválidos.");
 
             var updated = _service.Update(id, usuario);

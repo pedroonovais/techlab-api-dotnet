@@ -28,11 +28,11 @@ namespace service.Service
             if (patio == null)
                 throw new ArgumentNullException(nameof(patio));
 
-            if (string.IsNullOrWhiteSpace(patio.nome) || string.IsNullOrWhiteSpace(patio.localizacao))
+            if (string.IsNullOrWhiteSpace(patio.Nome) || string.IsNullOrWhiteSpace(patio.Localizacao))
                 throw new ArgumentException("Nome e localização são obrigatórios.");
 
-            patio.dataCadastro = DateTime.UtcNow;
-            patio.dataAtualizacao = DateTime.UtcNow;
+            patio.DtCadastro = DateTime.UtcNow;
+            patio.DtAtualizacao = DateTime.UtcNow;
 
             _context.Patio.Add(patio);
             _context.SaveChanges();
@@ -45,10 +45,10 @@ namespace service.Service
             if (existingPatio == null)
                 return false;
 
-            if (string.IsNullOrWhiteSpace(updatedPatio.nome) || string.IsNullOrWhiteSpace(updatedPatio.localizacao))
+            if (string.IsNullOrWhiteSpace(updatedPatio.Nome) || string.IsNullOrWhiteSpace(updatedPatio.Localizacao))
                 throw new ArgumentException("Nome e localização são obrigatórios.");
 
-            updatedPatio.dataAtualizacao = DateTime.UtcNow;
+            updatedPatio.DtAtualizacao = DateTime.UtcNow;
 
             _context.Entry(existingPatio).State = EntityState.Detached;
             _context.Patio.Update(updatedPatio);

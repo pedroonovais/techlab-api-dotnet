@@ -56,13 +56,13 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Post([FromBody] Moto moto)
         {
-            if (moto == null || string.IsNullOrWhiteSpace(moto.marca) || string.IsNullOrWhiteSpace(moto.modelo))
+            if (moto == null || string.IsNullOrWhiteSpace(moto.Marca) || string.IsNullOrWhiteSpace(moto.Modelo))
             {
                 return BadRequest("Dados inválidos.");
             }
 
             var newMoto = _service.Create(moto);
-            return CreatedAtAction(nameof(GetById), new { id = newMoto.id }, newMoto);
+            return CreatedAtAction(nameof(GetById), new { id = newMoto.Id }, newMoto);
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult Put(Guid id, [FromBody] Moto moto)
         {
-            if (moto == null || id == Guid.Empty || moto.id != id)
+            if (moto == null || id == Guid.Empty || moto.Id != id)
                 return BadRequest("Dados inválidos.");
 
             var updated = _service.Update(id, moto);

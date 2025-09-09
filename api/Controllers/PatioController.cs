@@ -56,11 +56,11 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Post([FromBody] Patio patio)
         {
-            if (patio == null || string.IsNullOrWhiteSpace(patio.nome) || string.IsNullOrWhiteSpace(patio.localizacao))
+            if (patio == null || string.IsNullOrWhiteSpace(patio.Nome) || string.IsNullOrWhiteSpace(patio.Localizacao))
                 return BadRequest("Dados inválidos.");
 
             var newPatio = _service.Create(patio);
-            return CreatedAtAction(nameof(GetById), new { id = newPatio.id }, newPatio);
+            return CreatedAtAction(nameof(GetById), new { id = newPatio.Id }, newPatio);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult Put(Guid id, [FromBody] Patio patio)
         {
-            if (patio == null || patio.id != id)
+            if (patio == null || patio.Id != id)
                 return BadRequest("Dados inválidos.");
 
             var updated = _service.Update(id, patio);

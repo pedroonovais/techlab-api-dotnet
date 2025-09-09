@@ -28,7 +28,7 @@ namespace service.Service
             if (moto == null)
                 throw new ArgumentNullException(nameof(moto));
 
-            if (string.IsNullOrWhiteSpace(moto.marca) || string.IsNullOrWhiteSpace(moto.modelo))
+            if (string.IsNullOrWhiteSpace(moto.Marca) || string.IsNullOrWhiteSpace(moto.Modelo))
                 throw new ArgumentException("Marca e modelo são obrigatórios.");
 
             moto.GetType()
@@ -50,7 +50,7 @@ namespace service.Service
             if (existingMoto == null)
                 return false;
 
-            if (string.IsNullOrWhiteSpace(updatedMoto.marca) || string.IsNullOrWhiteSpace(updatedMoto.modelo))
+            if (string.IsNullOrWhiteSpace(updatedMoto.Marca) || string.IsNullOrWhiteSpace(updatedMoto.Modelo))
                 throw new ArgumentException("Marca e modelo são obrigatórios.");
 
             updatedMoto.GetType()

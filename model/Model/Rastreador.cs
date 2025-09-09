@@ -8,7 +8,7 @@ namespace library.Model
 {
     public class Rastreador
     {
-        private Guid IdRastreador { get; set; }
+        public Guid Id { get; set; }
         private string? NumeroSerie { get; set; }
         private string? Modelo { get; set; }
         private DateTime DtCadastro { get; set; }

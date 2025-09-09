@@ -9,7 +9,7 @@ namespace library.Model
 {
     public class StatusOperacional
     {
-        private Guid IdStatusOperacional { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         private string Descricao { get; set; }

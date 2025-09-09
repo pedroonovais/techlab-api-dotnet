@@ -8,12 +8,10 @@ namespace data.Context
         public AppDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-
-            optionsBuilder.UseOracle(
-                "User Id=rm555276;Password=160205;Data Source=//oracle.fiap.com.br:1521/ORCL;",
+            optionsBuilder.UseNpgsql(
+                "Host=localhost;Port=5432;Database=techlab;Username=postgres;Password=postgres",
                 x => x.MigrationsAssembly("data")
             );
-
             return new AppDbContext(optionsBuilder.Options);
         }
     }

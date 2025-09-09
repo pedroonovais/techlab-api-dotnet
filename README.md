@@ -1,6 +1,7 @@
 # TechLab Api DotNet
 
-**TechLab Api DotNet** é uma API desenvolvida em .NET para o sistema de **gerenciamento de pátios**, com foco no controle de localização de motos utilizando sensores e tecnologia RFID. A solução é modularizada em camadas e utiliza Entity Framework Core com banco de dados Oracle. Conta também com documentação interativa via Swagger.
+**TechLab Api DotNet** é uma API desenvolvida em .NET para o sistema de **gerenciamento de pátios**, com foco no controle de localização de motos utilizando sensores e tecnologia RFID.  
+A solução é modularizada em camadas e utiliza **Entity Framework Core com PostgreSQL** rodando em **Docker Compose**. Conta também com documentação interativa via Swagger.
 
 ---
 
@@ -13,8 +14,8 @@
 - Administração de **pátios**, com possibilidade de ativar/desativar unidades
 - API RESTful com respostas em JSON
 - Documentação interativa via Swagger
-- Integração com Oracle via Entity Framework Core
-- Migrações de banco com EF Core
+- Banco de dados PostgreSQL em container
+- Migrações automáticas com EF Core
 
 ---
 
@@ -40,7 +41,8 @@
 - .NET 8 / .NET 9
 - ASP.NET Core Web API
 - Entity Framework Core
-- Oracle.EntityFrameworkCore
+- PostgreSQL (via Npgsql)
+- Docker / Docker Compose
 - Swagger / Swashbuckle
 - C#
 
@@ -55,26 +57,31 @@ git clone https://github.com/pedroonovais/techlab-api-dotnet
 cd techlab-api-dotnet
 ```
 
-Restaure os pacotes:
-
+### 1. Subir containers
 ```bash
-dotnet restore
+docker compose up --build
 ```
 
-Aplique as migrations:
-```bash
-dotnet ef database update --project ./data --startup-project ./api
+Isso irá:
+- Criar o container do **PostgreSQL**
+- Criar o container da **API**
+- Aplicar automaticamente as migrations no banco (`db.Database.Migrate()`)
+
+### 2. Acessar a API
+Abra no navegador:
+```
+http://localhost:5000/swagger
 ```
 
-Execute a aplicação:
-```bash
-cd api
-dotnet run
-```
+---
 
-Acesse a documentação Swagger:
+## 🛠 Migrações (EF Core)
+
+As migrations são aplicadas automaticamente na inicialização da API.  
+Mas se você precisar **criar novas migrations** (quando alterar entidades):
+
 ```bash
-https://localhost:{porta}/swagger
+dotnet ef migrations add NomeDaMigration -p data -s api -c data.Context.AppDbContext -o Migrations
 ```
 
 ---
@@ -138,4 +145,3 @@ https://localhost:{porta}/swagger
 | POST   | `/api/Patio`                 | Cadastra um novo pátio              |
 | PUT    | `/api/Patio/{id}`            | Atualiza os dados de um pátio       |
 | DELETE | `/api/Patio/{id}`            | Remove um pátio                     |
-
