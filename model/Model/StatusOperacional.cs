@@ -12,6 +12,6 @@ namespace library.Model
         public Guid Id { get; set; }
 
         [Required]
-        private string Descricao { get; set; }
+        public string Descricao { get; set; }
     }
 }

@@ -32,11 +32,11 @@ namespace service.Service
                 throw new ArgumentException("Marca e modelo são obrigatórios.");
 
             moto.GetType()
-                .GetProperty("dataCadastro")?
+                .GetProperty("DtCadastro")?
                 .SetValue(moto, DateTime.UtcNow);
 
             moto.GetType()
-                .GetProperty("dataAtualizacao")?
+                .GetProperty("DtAtualizacao")?
                 .SetValue(moto, DateTime.UtcNow);
 
             _context.Moto.Add(moto);
@@ -54,7 +54,7 @@ namespace service.Service
                 throw new ArgumentException("Marca e modelo são obrigatórios.");
 
             updatedMoto.GetType()
-                .GetProperty("dataAtualizacao")?
+                .GetProperty("DtAtualizacao")?
                 .SetValue(updatedMoto, DateTime.UtcNow);
 
             _context.Entry(existingMoto).State = EntityState.Detached;

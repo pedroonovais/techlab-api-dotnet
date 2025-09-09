@@ -11,8 +11,8 @@ namespace library.Model
         public Guid Id { get; set; }
         public required string Nome { get; set; }
         public required short NivelAcesso { get; set; }
-        private DateTime DtCadastro { get; set; }
-        private DateTime DtAtualizacao { get; set; }
-        private bool Ativo { get; set; }
+        public DateTime DtCadastro { get; set; }
+        public DateTime DtAtualizacao { get; set; }
+        public bool Ativo { get; set; }
     }
 }

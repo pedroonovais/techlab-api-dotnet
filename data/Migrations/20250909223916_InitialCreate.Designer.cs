@@ -12,7 +12,7 @@ using data.Context;
 namespace data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250909004943_InitialCreate")]
+    [Migration("20250909223916_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -31,12 +31,33 @@ namespace data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Chassi")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DtAtualizacao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DtCadastro")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("IdRastreador")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("IdStatusOperacional")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Marca")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Modelo")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Placa")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -75,6 +96,15 @@ namespace data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("DtAtualizacao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DtCadastro")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<short>("NivelAcesso")
                         .HasColumnType("smallint");
 
@@ -93,6 +123,21 @@ namespace data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("DtAtualizacao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DtCadastro")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Modelo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NumeroSerie")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.ToTable("RASTREADOR", (string)null);
@@ -103,6 +148,10 @@ namespace data.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

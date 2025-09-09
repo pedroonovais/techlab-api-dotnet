@@ -11,12 +11,12 @@ namespace library.Model
         public Guid Id { get; set; }
         public required string Marca { get; set; }
         public required string Modelo { get; set; }
-        private string? Placa { get; set; }
-        private string? Chassi { get; set; }
-        private Guid IdStatusOperacional { get; set; }
-        private Guid IdRastreador { get; set; }
-        private DateTime DtCadastro { get; set; }
-        private DateTime DtAtualizacao { get; set; }
-        private bool Ativo { get; set; }
+        public string? Placa { get; set; }
+        public string? Chassi { get; set; }
+        public Guid IdStatusOperacional { get; set; }
+        public Guid IdRastreador { get; set; }
+        public DateTime DtCadastro { get; set; }
+        public DateTime DtAtualizacao { get; set; }
+        public bool Ativo { get; set; }
     }
 }

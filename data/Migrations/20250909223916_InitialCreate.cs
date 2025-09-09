@@ -17,7 +17,14 @@ namespace data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Marca = table.Column<string>(type: "text", nullable: false),
-                    Modelo = table.Column<string>(type: "text", nullable: false)
+                    Modelo = table.Column<string>(type: "text", nullable: false),
+                    Placa = table.Column<string>(type: "text", nullable: true),
+                    Chassi = table.Column<string>(type: "text", nullable: true),
+                    IdStatusOperacional = table.Column<Guid>(type: "uuid", nullable: false),
+                    IdRastreador = table.Column<Guid>(type: "uuid", nullable: false),
+                    DtCadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DtAtualizacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Ativo = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -45,7 +52,10 @@ namespace data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Nome = table.Column<string>(type: "text", nullable: false),
-                    NivelAcesso = table.Column<short>(type: "smallint", nullable: false)
+                    NivelAcesso = table.Column<short>(type: "smallint", nullable: false),
+                    DtCadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DtAtualizacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Ativo = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -56,7 +66,12 @@ namespace data.Migrations
                 name: "RASTREADOR",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    NumeroSerie = table.Column<string>(type: "text", nullable: true),
+                    Modelo = table.Column<string>(type: "text", nullable: true),
+                    DtCadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DtAtualizacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Ativo = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -67,7 +82,8 @@ namespace data.Migrations
                 name: "STATUSOPERACIONAL",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Descricao = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
