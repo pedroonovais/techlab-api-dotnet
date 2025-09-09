@@ -9,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddScoped<MotoService>();
 builder.Services.AddScoped<PatioService>();
+builder.Services.AddScoped<PerfilService>();
+builder.Services.AddScoped<RastreadorService>();
+builder.Services.AddScoped<StatusOperacionalService>();
 builder.Services.AddScoped<UsuarioService>();
 
 builder.Services.AddControllers();
