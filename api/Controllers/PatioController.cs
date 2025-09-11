@@ -1,4 +1,4 @@
-﻿using library.Model;
+using library.Model;
 using Microsoft.AspNetCore.Mvc;
 using service.Service;
 using api.Resources;
@@ -17,36 +17,47 @@ namespace api.Controllers
         }
 
         /// <summary>
-        /// Retorna todos os pátios cadastrados.
+        /// Retorna todos os pátios cadastrados com paginação.
         /// </summary>
-        /// <response code="200">Lista de pátios retornada com sucesso.</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult Get()
+        public async Task<IActionResult> Get([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10,
+                                             [FromQuery] string? search = null, [FromQuery] string? sort = null)
         {
-            var patios = _service.GetAll();
+            var result = await _service.GetPagedAsync(pageNumber, pageSize, search, sort ?? "-DtCadastro");
 
-            var resources = patios.Select(patio =>
+            var items = result.Items.Select(patio =>
             {
-                var resource = new Resource<Patio>
-                {
-                    Data = patio
-                };
-                resource.Links.Add("self", new Link($"/api/Patio/{patio.Id}", "GET"));
-                resource.Links.Add("update", new Link($"/api/Patio/{patio.Id}", "PUT"));
-                resource.Links.Add("delete", new Link($"/api/Patio/{patio.Id}", "DELETE"));
-                return resource;
+                var res = new Resource<Patio> { Data = patio };
+                res.Links.Add("self", new Link($"/api/Patio/{patio.Id}", "GET"));
+                res.Links.Add("update", new Link($"/api/Patio/{patio.Id}", "PUT"));
+                res.Links.Add("delete", new Link($"/api/Patio/{patio.Id}", "DELETE"));
+                return res;
             }).ToList();
 
-            return Ok(resources);
+            var page = new PagedResource<Patio>
+            {
+                Items = items,
+                PageNumber = result.PageNumber,
+                PageSize = result.PageSize,
+                TotalItems = result.TotalItems,
+                TotalPages = result.TotalPages
+            };
+
+            page.Links.Add("self", new Link(PaginationLinkBuilder.BuildUrl(Request, result.PageNumber, result.PageSize), "GET"));
+            if (result.PageNumber > 1)
+                page.Links.Add("prev", new Link(PaginationLinkBuilder.BuildUrl(Request, result.PageNumber - 1, result.PageSize), "GET"));
+            if (result.PageNumber < result.TotalPages)
+                page.Links.Add("next", new Link(PaginationLinkBuilder.BuildUrl(Request, result.PageNumber + 1, result.PageSize), "GET"));
+            if (result.TotalPages > 0)
+            {
+                page.Links.Add("first", new Link(PaginationLinkBuilder.BuildUrl(Request, 1, result.PageSize), "GET"));
+                page.Links.Add("last", new Link(PaginationLinkBuilder.BuildUrl(Request, result.TotalPages, result.PageSize), "GET"));
+            }
+
+            return Ok(page);
         }
 
-        /// <summary>
-        /// Retorna um pátio específico por ID.
-        /// </summary>
-        /// <param name="id">ID do pátio.</param>
-        /// <response code="200">Pátio encontrado.</response>
-        /// <response code="404">Pátio não encontrado.</response>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -56,11 +67,7 @@ namespace api.Controllers
             if (patio == null)
                 return NotFound();
 
-            var resource = new Resource<Patio>
-            {
-                Data = patio
-            };
-
+            var resource = new Resource<Patio> { Data = patio };
             resource.Links.Add("self", new Link($"/api/Patio/{id}", "GET"));
             resource.Links.Add("update", new Link($"/api/Patio/{id}", "PUT"));
             resource.Links.Add("delete", new Link($"/api/Patio/{id}", "DELETE"));
@@ -69,12 +76,6 @@ namespace api.Controllers
             return Ok(resource);
         }
 
-        /// <summary>
-        /// Cadastra um novo pátio.
-        /// </summary>
-        /// <param name="patio">Dados do pátio a ser cadastrado.</param>
-        /// <response code="201">Pátio criado com sucesso.</response>
-        /// <response code="400">Dados inválidos.</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -85,11 +86,7 @@ namespace api.Controllers
 
             var newPatio = _service.Create(patio);
 
-            var resource = new Resource<Patio>
-            {
-                Data = newPatio
-            };
-
+            var resource = new Resource<Patio> { Data = newPatio };
             resource.Links.Add("self", new Link($"/api/Patio/{newPatio.Id}", "GET"));
             resource.Links.Add("update", new Link($"/api/Patio/{newPatio.Id}", "PUT"));
             resource.Links.Add("delete", new Link($"/api/Patio/{newPatio.Id}", "DELETE"));
@@ -98,14 +95,6 @@ namespace api.Controllers
             return CreatedAtAction(nameof(GetById), new { id = newPatio.Id }, resource);
         }
 
-        /// <summary>
-        /// Atualiza os dados de um pátio existente.
-        /// </summary>
-        /// <param name="id">ID do pátio a ser atualizado.</param>
-        /// <param name="patio">Dados atualizados do pátio.</param>
-        /// <response code="200">Pátio atualizado com sucesso.</response>
-        /// <response code="400">Dados inválidos.</response>
-        /// <response code="404">Pátio não encontrado.</response>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -119,11 +108,7 @@ namespace api.Controllers
             if (!updated)
                 return NotFound();
 
-            var resource = new Resource<Patio>
-            {
-                Data = patio
-            };
-
+            var resource = new Resource<Patio> { Data = patio };
             resource.Links.Add("self", new Link($"/api/Patio/{patio.Id}", "GET"));
             resource.Links.Add("update", new Link($"/api/Patio/{patio.Id}", "PUT"));
             resource.Links.Add("delete", new Link($"/api/Patio/{patio.Id}", "DELETE"));
@@ -132,13 +117,6 @@ namespace api.Controllers
             return Ok(resource);
         }
 
-        /// <summary>
-        /// Remove um pátio pelo ID.
-        /// </summary>
-        /// <param name="id">ID do pátio.</param>
-        /// <response code="204">Pátio removido com sucesso.</response>
-        /// <response code="400">ID inválido.</response>
-        /// <response code="404">Pátio não encontrado.</response>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

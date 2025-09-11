@@ -1,6 +1,7 @@
-﻿using data.Context;
+using data.Context;
 using library.Model;
 using Microsoft.EntityFrameworkCore;
+using service.Common;
 
 namespace service.Service
 {
@@ -13,9 +14,37 @@ namespace service.Service
             _context = context;
         }
 
+        // --- Paginação ---
+        public async Task<PagedResult<StatusOperacional>> GetPagedAsync(
+            int pageNumber = 1,
+            int pageSize = 10,
+            string? sort = "Id",
+            CancellationToken ct = default)
+        {
+            var query = _context.StatusOperacional.AsNoTracking().AsQueryable();
+
+            switch (sort?.ToLowerInvariant())
+            {
+                case "id":
+                default:
+                    query = query.OrderBy(s => s.Id);
+                    break;
+                case "-id":
+                    query = query.OrderByDescending(s => s.Id);
+                    break;
+            }
+
+            var total = await query.CountAsync(ct);
+            var items = await query.Skip((pageNumber - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync(ct);
+
+            return new PagedResult<StatusOperacional>(items, total, pageNumber, pageSize);
+        }
+
         public IEnumerable<StatusOperacional> GetAll()
         {
-            return _context.StatusOperacional.ToList();
+            return _context.StatusOperacional.AsNoTracking().ToList();
         }
 
         public StatusOperacional? GetById(Guid id)
@@ -28,9 +57,6 @@ namespace service.Service
             if (status == null)
                 throw new ArgumentNullException(nameof(status));
 
-            // Se houver propriedades obrigatórias públicas (ex.: Descricao),
-            // valide aqui. No seu modelo atual, ela está privada, então seguimos simples.
-
             _context.StatusOperacional.Add(status);
             _context.SaveChanges();
             return status;
@@ -42,10 +68,7 @@ namespace service.Service
             if (existing == null)
                 return false;
 
-            // Garante consistência do Id
             updatedStatus.Id = id;
-
-            // Se tiver campos de auditoria públicos, ajuste aqui (DtAtualizacao, etc).
 
             _context.Entry(existing).State = EntityState.Detached;
             _context.StatusOperacional.Update(updatedStatus);

@@ -1,6 +1,7 @@
-﻿using data.Context;
+using data.Context;
 using library.Model;
 using Microsoft.EntityFrameworkCore;
+using service.Common;
 
 namespace service.Service
 {
@@ -13,9 +14,37 @@ namespace service.Service
             _context = context;
         }
 
+        // --- Paginação ---
+        public async Task<PagedResult<Rastreador>> GetPagedAsync(
+            int pageNumber = 1,
+            int pageSize = 10,
+            string? sort = "Id",
+            CancellationToken ct = default)
+        {
+            var query = _context.Rastreador.AsNoTracking().AsQueryable();
+
+            switch (sort?.ToLowerInvariant())
+            {
+                case "id":
+                default:
+                    query = query.OrderBy(r => r.Id);
+                    break;
+                case "-id":
+                    query = query.OrderByDescending(r => r.Id);
+                    break;
+            }
+
+            var total = await query.CountAsync(ct);
+            var items = await query.Skip((pageNumber - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync(ct);
+
+            return new PagedResult<Rastreador>(items, total, pageNumber, pageSize);
+        }
+
         public IEnumerable<Rastreador> GetAll()
         {
-            return _context.Rastreador.ToList();
+            return _context.Rastreador.AsNoTracking().ToList();
         }
 
         public Rastreador? GetById(Guid id)
@@ -28,9 +57,6 @@ namespace service.Service
             if (rastreador == null)
                 throw new ArgumentNullException(nameof(rastreador));
 
-            // Se você tiver campos de auditoria públicos (ex.: DtCadastro/DtAtualizacao),
-            // ajuste aqui como no PerfilService. Como o modelo expõe só Id publicamente,
-            // manteremos o insert simples.
             _context.Rastreador.Add(rastreador);
             _context.SaveChanges();
             return rastreador;
@@ -42,12 +68,8 @@ namespace service.Service
             if (existing == null)
                 return false;
 
-            // Garante consistência do Id
             updatedRastreador.Id = id;
 
-            // Se você tiver campos de auditoria públicos, ajuste aqui (DtAtualizacao, etc).
-
-            // Desanexa o existente e atualiza com o objeto recebido
             _context.Entry(existing).State = EntityState.Detached;
             _context.Rastreador.Update(updatedRastreador);
             _context.SaveChanges();
