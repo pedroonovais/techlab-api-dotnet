@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using service.Service;
 using library.Model;
+using api.Resources;
 
 namespace api.Controllers
 {
@@ -24,7 +25,22 @@ namespace api.Controllers
         public IActionResult Get()
         {
             var itens = _service.GetAll();
-            return Ok(itens);
+
+            var resources = itens.Select(s =>
+            {
+                var resource = new Resource<StatusOperacional>
+                {
+                    Data = s
+                };
+
+                resource.Links.Add("self", new Link($"/api/StatusOperacional/{s.Id}", "GET"));
+                resource.Links.Add("update", new Link($"/api/StatusOperacional/{s.Id}", "PUT"));
+                resource.Links.Add("delete", new Link($"/api/StatusOperacional/{s.Id}", "DELETE"));
+
+                return resource;
+            }).ToList();
+
+            return Ok(resources);
         }
 
         /// <summary>
@@ -42,7 +58,17 @@ namespace api.Controllers
             if (item == null)
                 return NotFound();
 
-            return Ok(item);
+            var resource = new Resource<StatusOperacional>
+            {
+                Data = item
+            };
+
+            resource.Links.Add("self", new Link($"/api/StatusOperacional/{id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/StatusOperacional/{id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/StatusOperacional/{id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/StatusOperacional", "GET"));
+
+            return Ok(resource);
         }
 
         /// <summary>
@@ -60,7 +86,18 @@ namespace api.Controllers
                 return BadRequest("Dados inválidos.");
 
             var novo = _service.Create(status);
-            return CreatedAtAction(nameof(GetById), new { id = novo.Id }, novo);
+
+            var resource = new Resource<StatusOperacional>
+            {
+                Data = novo
+            };
+
+            resource.Links.Add("self", new Link($"/api/StatusOperacional/{novo.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/StatusOperacional/{novo.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/StatusOperacional/{novo.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/StatusOperacional", "GET"));
+
+            return CreatedAtAction(nameof(GetById), new { id = novo.Id }, resource);
         }
 
         /// <summary>
@@ -84,7 +121,17 @@ namespace api.Controllers
             if (!updated)
                 return NotFound();
 
-            return Ok(status);
+            var resource = new Resource<StatusOperacional>
+            {
+                Data = status
+            };
+
+            resource.Links.Add("self", new Link($"/api/StatusOperacional/{status.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/StatusOperacional/{status.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/StatusOperacional/{status.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/StatusOperacional", "GET"));
+
+            return Ok(resource);
         }
 
         /// <summary>

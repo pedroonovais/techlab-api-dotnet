@@ -1,6 +1,7 @@
 ﻿using library.Model;
 using Microsoft.AspNetCore.Mvc;
 using service.Service;
+using api.Resources;
 
 namespace api.Controllers
 {
@@ -24,7 +25,20 @@ namespace api.Controllers
         public IActionResult Get()
         {
             var patios = _service.GetAll();
-            return Ok(patios);
+
+            var resources = patios.Select(patio =>
+            {
+                var resource = new Resource<Patio>
+                {
+                    Data = patio
+                };
+                resource.Links.Add("self", new Link($"/api/Patio/{patio.Id}", "GET"));
+                resource.Links.Add("update", new Link($"/api/Patio/{patio.Id}", "PUT"));
+                resource.Links.Add("delete", new Link($"/api/Patio/{patio.Id}", "DELETE"));
+                return resource;
+            }).ToList();
+
+            return Ok(resources);
         }
 
         /// <summary>
@@ -42,7 +56,17 @@ namespace api.Controllers
             if (patio == null)
                 return NotFound();
 
-            return Ok(patio);
+            var resource = new Resource<Patio>
+            {
+                Data = patio
+            };
+
+            resource.Links.Add("self", new Link($"/api/Patio/{id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/Patio/{id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/Patio/{id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/Patio", "GET"));
+
+            return Ok(resource);
         }
 
         /// <summary>
@@ -60,7 +84,18 @@ namespace api.Controllers
                 return BadRequest("Dados inválidos.");
 
             var newPatio = _service.Create(patio);
-            return CreatedAtAction(nameof(GetById), new { id = newPatio.Id }, newPatio);
+
+            var resource = new Resource<Patio>
+            {
+                Data = newPatio
+            };
+
+            resource.Links.Add("self", new Link($"/api/Patio/{newPatio.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/Patio/{newPatio.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/Patio/{newPatio.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/Patio", "GET"));
+
+            return CreatedAtAction(nameof(GetById), new { id = newPatio.Id }, resource);
         }
 
         /// <summary>
@@ -84,7 +119,17 @@ namespace api.Controllers
             if (!updated)
                 return NotFound();
 
-            return Ok(patio);
+            var resource = new Resource<Patio>
+            {
+                Data = patio
+            };
+
+            resource.Links.Add("self", new Link($"/api/Patio/{patio.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/Patio/{patio.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/Patio/{patio.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/Patio", "GET"));
+
+            return Ok(resource);
         }
 
         /// <summary>

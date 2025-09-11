@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using service.Service;
 using library.Model;
+using api.Resources;
 
 namespace api.Controllers
 {
@@ -24,7 +25,22 @@ namespace api.Controllers
         public IActionResult Get()
         {
             var itens = _service.GetAll();
-            return Ok(itens);
+
+            var resources = itens.Select(r =>
+            {
+                var resource = new Resource<Rastreador>
+                {
+                    Data = r
+                };
+
+                resource.Links.Add("self", new Link($"/api/Rastreador/{r.Id}", "GET"));
+                resource.Links.Add("update", new Link($"/api/Rastreador/{r.Id}", "PUT"));
+                resource.Links.Add("delete", new Link($"/api/Rastreador/{r.Id}", "DELETE"));
+
+                return resource;
+            }).ToList();
+
+            return Ok(resources);
         }
 
         /// <summary>
@@ -42,7 +58,17 @@ namespace api.Controllers
             if (item == null)
                 return NotFound();
 
-            return Ok(item);
+            var resource = new Resource<Rastreador>
+            {
+                Data = item
+            };
+
+            resource.Links.Add("self", new Link($"/api/Rastreador/{id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/Rastreador/{id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/Rastreador/{id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/Rastreador", "GET"));
+
+            return Ok(resource);
         }
 
         /// <summary>
@@ -60,7 +86,18 @@ namespace api.Controllers
                 return BadRequest("Dados inválidos.");
 
             var novo = _service.Create(rastreador);
-            return CreatedAtAction(nameof(GetById), new { id = novo.Id }, novo);
+
+            var resource = new Resource<Rastreador>
+            {
+                Data = novo
+            };
+
+            resource.Links.Add("self", new Link($"/api/Rastreador/{novo.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/Rastreador/{novo.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/Rastreador/{novo.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/Rastreador", "GET"));
+
+            return CreatedAtAction(nameof(GetById), new { id = novo.Id }, resource);
         }
 
         /// <summary>
@@ -84,7 +121,17 @@ namespace api.Controllers
             if (!updated)
                 return NotFound();
 
-            return Ok(rastreador);
+            var resource = new Resource<Rastreador>
+            {
+                Data = rastreador
+            };
+
+            resource.Links.Add("self", new Link($"/api/Rastreador/{rastreador.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/Rastreador/{rastreador.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/Rastreador/{rastreador.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/Rastreador", "GET"));
+
+            return Ok(resource);
         }
 
         /// <summary>

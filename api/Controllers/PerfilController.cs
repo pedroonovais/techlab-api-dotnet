@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using service.Service;
 using library.Model;
+using api.Resources;
 
 namespace api.Controllers
 {
@@ -24,7 +25,22 @@ namespace api.Controllers
         public IActionResult Get()
         {
             var perfis = _service.GetAll();
-            return Ok(perfis);
+
+            var resources = perfis.Select(perfil =>
+            {
+                var resource = new Resource<Perfil>
+                {
+                    Data = perfil
+                };
+
+                resource.Links.Add("self", new Link($"/api/Perfil/{perfil.Id}", "GET"));
+                resource.Links.Add("update", new Link($"/api/Perfil/{perfil.Id}", "PUT"));
+                resource.Links.Add("delete", new Link($"/api/Perfil/{perfil.Id}", "DELETE"));
+
+                return resource;
+            }).ToList();
+
+            return Ok(resources);
         }
 
         /// <summary>
@@ -42,7 +58,17 @@ namespace api.Controllers
             if (perfil == null)
                 return NotFound();
 
-            return Ok(perfil);
+            var resource = new Resource<Perfil>
+            {
+                Data = perfil
+            };
+
+            resource.Links.Add("self", new Link($"/api/Perfil/{id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/Perfil/{id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/Perfil/{id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/Perfil", "GET"));
+
+            return Ok(resource);
         }
 
         /// <summary>
@@ -60,7 +86,18 @@ namespace api.Controllers
                 return BadRequest("Nome e Nível de acesso são obrigatórios.");
 
             var novo = _service.Create(perfil);
-            return CreatedAtAction(nameof(GetById), new { id = novo.Id }, novo);
+
+            var resource = new Resource<Perfil>
+            {
+                Data = novo
+            };
+
+            resource.Links.Add("self", new Link($"/api/Perfil/{novo.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/Perfil/{novo.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/Perfil/{novo.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/Perfil", "GET"));
+
+            return CreatedAtAction(nameof(GetById), new { id = novo.Id }, resource);
         }
 
         /// <summary>
@@ -84,7 +121,17 @@ namespace api.Controllers
             if (!updated)
                 return NotFound();
 
-            return Ok(perfil);
+            var resource = new Resource<Perfil>
+            {
+                Data = perfil
+            };
+
+            resource.Links.Add("self", new Link($"/api/Perfil/{perfil.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/Perfil/{perfil.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/Perfil/{perfil.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/Perfil", "GET"));
+
+            return Ok(resource);
         }
 
         /// <summary>

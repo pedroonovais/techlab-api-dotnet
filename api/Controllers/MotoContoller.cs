@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using service.Service;
 using library.Model;
+using api.Resources;
 
 namespace api.Controllers
 {
@@ -24,7 +25,20 @@ namespace api.Controllers
         public IActionResult Get()
         {
             var motos = _service.GetAll();
-            return Ok(motos);
+
+            var resources = motos.Select(moto =>
+            {
+                var resource = new Resource<Moto>
+                {
+                    Data = moto
+                };
+                resource.Links.Add("self", new Link($"/api/Moto/{moto.Id}", "GET"));
+                resource.Links.Add("update", new Link($"/api/Moto/{moto.Id}", "PUT"));
+                resource.Links.Add("delete", new Link($"/api/Moto/{moto.Id}", "DELETE"));
+                return resource;
+            }).ToList();
+
+            return Ok(resources);
         }
 
         /// <summary>
@@ -42,7 +56,17 @@ namespace api.Controllers
             if (moto == null)
                 return NotFound();
 
-            return Ok(moto);
+            var resource = new Resource<Moto>
+            {
+                Data = moto
+            };
+
+            resource.Links.Add("self", new Link($"/api/Moto/{id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/Moto/{id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/Moto/{id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/Moto", "GET"));
+
+            return Ok(resource);
         }
 
         /// <summary>
@@ -62,7 +86,18 @@ namespace api.Controllers
             }
 
             var newMoto = _service.Create(moto);
-            return CreatedAtAction(nameof(GetById), new { id = newMoto.Id }, newMoto);
+
+            var resource = new Resource<Moto>
+            {
+                Data = newMoto
+            };
+
+            resource.Links.Add("self", new Link($"/api/Moto/{newMoto.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/Moto/{newMoto.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/Moto/{newMoto.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/Moto", "GET"));
+
+            return CreatedAtAction(nameof(GetById), new { id = newMoto.Id }, resource);
         }
 
         /// <summary>
@@ -83,8 +118,19 @@ namespace api.Controllers
                 return BadRequest("Dados inválidos.");
 
             var updated = _service.Update(id, moto);
+            
             if (!updated)
                 return NotFound();
+
+            var resource = new Resource<Moto>
+            {
+                Data = moto
+            };
+
+            resource.Links.Add("self", new Link($"/api/Moto/{moto.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/Moto/{moto.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/Moto/{moto.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/Moto", "GET"));
 
             return Ok(moto);
         }

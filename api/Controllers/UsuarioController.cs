@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using service.Service;
 using library.Model;
+using api.Resources;
 
 namespace api.Controllers
 {
@@ -24,7 +25,22 @@ namespace api.Controllers
         public IActionResult Get()
         {
             var usuarios = _service.GetAll();
-            return Ok(usuarios);
+
+            var resources = usuarios.Select(u =>
+            {
+                var resource = new Resource<Usuario>
+                {
+                    Data = u
+                };
+
+                resource.Links.Add("self", new Link($"/api/Usuario/{u.Id}", "GET"));
+                resource.Links.Add("update", new Link($"/api/Usuario/{u.Id}", "PUT"));
+                resource.Links.Add("delete", new Link($"/api/Usuario/{u.Id}", "DELETE"));
+
+                return resource;
+            }).ToList();
+
+            return Ok(resources);
         }
 
         /// <summary>
@@ -42,7 +58,17 @@ namespace api.Controllers
             if (usuario == null)
                 return NotFound();
 
-            return Ok(usuario);
+            var resource = new Resource<Usuario>
+            {
+                Data = usuario
+            };
+
+            resource.Links.Add("self", new Link($"/api/Usuario/{id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/Usuario/{id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/Usuario/{id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/Usuario", "GET"));
+
+            return Ok(resource);
         }
 
         /// <summary>
@@ -60,7 +86,18 @@ namespace api.Controllers
                 return BadRequest("Dados inválidos.");
 
             var newUsuario = _service.Create(usuario);
-            return CreatedAtAction(nameof(GetById), new { id = newUsuario.Id }, newUsuario);
+
+            var resource = new Resource<Usuario>
+            {
+                Data = newUsuario
+            };
+
+            resource.Links.Add("self", new Link($"/api/Usuario/{newUsuario.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/Usuario/{newUsuario.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/Usuario/{newUsuario.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/Usuario", "GET"));
+
+            return CreatedAtAction(nameof(GetById), new { id = newUsuario.Id }, resource);
         }
 
         /// <summary>
@@ -84,7 +121,17 @@ namespace api.Controllers
             if (!updated)
                 return NotFound();
 
-            return Ok(usuario);
+            var resource = new Resource<Usuario>
+            {
+                Data = usuario
+            };
+
+            resource.Links.Add("self", new Link($"/api/Usuario/{usuario.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/Usuario/{usuario.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/Usuario/{usuario.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/Usuario", "GET"));
+
+            return Ok(resource);
         }
 
         /// <summary>
