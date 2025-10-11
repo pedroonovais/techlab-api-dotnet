@@ -1,6 +1,7 @@
-﻿using data.Context;
+using data.Context;
 using library.Model;
 using Microsoft.EntityFrameworkCore;
+using service.Common;
 
 namespace service.Service
 {
@@ -13,9 +14,49 @@ namespace service.Service
             _context = context;
         }
 
+        // --- Paginação ---
+        public async Task<PagedResult<Usuario>> GetPagedAsync(
+            int pageNumber = 1,
+            int pageSize = 10,
+            string? search = null,
+            string? sort = "-DtCriacao",
+            CancellationToken ct = default)
+        {
+            var query = _context.Usuario.AsNoTracking().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(u => u.Nome.Contains(search) || u.Email.Contains(search));
+            }
+
+            switch (sort?.ToLowerInvariant())
+            {
+                case "nome":
+                    query = query.OrderBy(u => u.Nome);
+                    break;
+                case "-nome":
+                    query = query.OrderByDescending(u => u.Nome);
+                    break;
+                case "dtcriacao":
+                    query = query.OrderBy(u => u.DtCriacao);
+                    break;
+                case "-dtcriacao":
+                default:
+                    query = query.OrderByDescending(u => u.DtCriacao);
+                    break;
+            }
+
+            var total = await query.CountAsync(ct);
+            var items = await query.Skip((pageNumber - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync(ct);
+
+            return new PagedResult<Usuario>(items, total, pageNumber, pageSize);
+        }
+
         public IEnumerable<Usuario> GetAll()
         {
-            return _context.Usuario.ToList();
+            return _context.Usuario.AsNoTracking().ToList();
         }
 
         public Usuario? GetById(Guid id)

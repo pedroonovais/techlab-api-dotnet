@@ -1,6 +1,7 @@
-﻿using data.Context;
+using data.Context;
 using library.Model;
 using Microsoft.EntityFrameworkCore;
+using service.Common;
 
 namespace service.Service
 {
@@ -13,9 +14,49 @@ namespace service.Service
             _context = context;
         }
 
+        // --- Paginação ---
+        public async Task<PagedResult<Moto>> GetPagedAsync(
+            int pageNumber = 1,
+            int pageSize = 10,
+            string? search = null,
+            string? sort = "-DtCadastro",
+            CancellationToken ct = default)
+        {
+            var query = _context.Moto.AsNoTracking().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(m => m.Marca.Contains(search) || m.Modelo.Contains(search));
+            }
+
+            switch (sort?.ToLowerInvariant())
+            {
+                case "marca":
+                    query = query.OrderBy(m => m.Marca);
+                    break;
+                case "-marca":
+                    query = query.OrderByDescending(m => m.Marca);
+                    break;
+                case "dtcadastro":
+                    query = query.OrderBy(m => EF.Property<DateTime?>(m, "DtCadastro"));
+                    break;
+                case "-dtcadastro":
+                default:
+                    query = query.OrderByDescending(m => EF.Property<DateTime?>(m, "DtCadastro"));
+                    break;
+            }
+
+            var total = await query.CountAsync(ct);
+            var items = await query.Skip((pageNumber - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync(ct);
+
+            return new PagedResult<Moto>(items, total, pageNumber, pageSize);
+        }
+
         public IEnumerable<Moto> GetAll()
         {
-            return _context.Moto.ToList();
+            return _context.Moto.AsNoTracking().ToList();
         }
 
         public Moto? GetById(Guid id)
