@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using service.Service;
 using library.Model;
 using api.Resources;
+using Asp.Versioning;
 
 namespace api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class UsuarioController : ControllerBase
     {
         private readonly UsuarioService _service;
@@ -29,9 +31,9 @@ namespace api.Controllers
             var items = result.Items.Select(u =>
             {
                 var res = new Resource<Usuario> { Data = u };
-                res.Links.Add("self", new Link($"/api/Usuario/{u.Id}", "GET"));
-                res.Links.Add("update", new Link($"/api/Usuario/{u.Id}", "PUT"));
-                res.Links.Add("delete", new Link($"/api/Usuario/{u.Id}", "DELETE"));
+                res.Links.Add("self", new Link($"/api/v1/Usuario/{u.Id}", "GET"));
+                res.Links.Add("update", new Link($"/api/v1/Usuario/{u.Id}", "PUT"));
+                res.Links.Add("delete", new Link($"/api/v1/Usuario/{u.Id}", "DELETE"));
                 return res;
             }).ToList();
 
@@ -68,10 +70,10 @@ namespace api.Controllers
                 return NotFound();
 
             var resource = new Resource<Usuario> { Data = usuario };
-            resource.Links.Add("self", new Link($"/api/Usuario/{id}", "GET"));
-            resource.Links.Add("update", new Link($"/api/Usuario/{id}", "PUT"));
-            resource.Links.Add("delete", new Link($"/api/Usuario/{id}", "DELETE"));
-            resource.Links.Add("all", new Link("/api/Usuario", "GET"));
+            resource.Links.Add("self", new Link($"/api/v1/Usuario/{id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/v1/Usuario/{id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/v1/Usuario/{id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/v1/Usuario", "GET"));
 
             return Ok(resource);
         }
@@ -87,10 +89,10 @@ namespace api.Controllers
             var newUsuario = _service.Create(usuario);
 
             var resource = new Resource<Usuario> { Data = newUsuario };
-            resource.Links.Add("self", new Link($"/api/Usuario/{newUsuario.Id}", "GET"));
-            resource.Links.Add("update", new Link($"/api/Usuario/{newUsuario.Id}", "PUT"));
-            resource.Links.Add("delete", new Link($"/api/Usuario/{newUsuario.Id}", "DELETE"));
-            resource.Links.Add("all", new Link("/api/Usuario", "GET"));
+            resource.Links.Add("self", new Link($"/api/v1/Usuario/{newUsuario.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/v1/Usuario/{newUsuario.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/v1/Usuario/{newUsuario.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/v1/Usuario", "GET"));
 
             return CreatedAtAction(nameof(GetById), new { id = newUsuario.Id }, resource);
         }
@@ -109,10 +111,10 @@ namespace api.Controllers
                 return NotFound();
 
             var resource = new Resource<Usuario> { Data = usuario };
-            resource.Links.Add("self", new Link($"/api/Usuario/{usuario.Id}", "GET"));
-            resource.Links.Add("update", new Link($"/api/Usuario/{usuario.Id}", "PUT"));
-            resource.Links.Add("delete", new Link($"/api/Usuario/{usuario.Id}", "DELETE"));
-            resource.Links.Add("all", new Link("/api/Usuario", "GET"));
+            resource.Links.Add("self", new Link($"/api/v1/Usuario/{usuario.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/v1/Usuario/{usuario.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/v1/Usuario/{usuario.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/v1/Usuario", "GET"));
 
             return Ok(resource);
         }

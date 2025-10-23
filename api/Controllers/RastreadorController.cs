@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using service.Service;
 using library.Model;
 using api.Resources;
+using Asp.Versioning;
 
 namespace api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class RastreadorController : ControllerBase
     {
         private readonly RastreadorService _service;
@@ -29,9 +31,9 @@ namespace api.Controllers
             var items = result.Items.Select(r =>
             {
                 var res = new Resource<Rastreador> { Data = r };
-                res.Links.Add("self", new Link($"/api/Rastreador/{r.Id}", "GET"));
-                res.Links.Add("update", new Link($"/api/Rastreador/{r.Id}", "PUT"));
-                res.Links.Add("delete", new Link($"/api/Rastreador/{r.Id}", "DELETE"));
+                res.Links.Add("self", new Link($"/api/v1/Rastreador/{r.Id}", "GET"));
+                res.Links.Add("update", new Link($"/api/v1/Rastreador/{r.Id}", "PUT"));
+                res.Links.Add("delete", new Link($"/api/v1/Rastreador/{r.Id}", "DELETE"));
                 return res;
             }).ToList();
 
@@ -68,10 +70,10 @@ namespace api.Controllers
                 return NotFound();
 
             var resource = new Resource<Rastreador> { Data = item };
-            resource.Links.Add("self", new Link($"/api/Rastreador/{id}", "GET"));
-            resource.Links.Add("update", new Link($"/api/Rastreador/{id}", "PUT"));
-            resource.Links.Add("delete", new Link($"/api/Rastreador/{id}", "DELETE"));
-            resource.Links.Add("all", new Link("/api/Rastreador", "GET"));
+            resource.Links.Add("self", new Link($"/api/v1/Rastreador/{id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/v1/Rastreador/{id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/v1/Rastreador/{id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/v1/Rastreador", "GET"));
 
             return Ok(resource);
         }
@@ -87,10 +89,10 @@ namespace api.Controllers
             var novo = _service.Create(rastreador);
 
             var resource = new Resource<Rastreador> { Data = novo };
-            resource.Links.Add("self", new Link($"/api/Rastreador/{novo.Id}", "GET"));
-            resource.Links.Add("update", new Link($"/api/Rastreador/{novo.Id}", "PUT"));
-            resource.Links.Add("delete", new Link($"/api/Rastreador/{novo.Id}", "DELETE"));
-            resource.Links.Add("all", new Link("/api/Rastreador", "GET"));
+            resource.Links.Add("self", new Link($"/api/v1/Rastreador/{novo.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/v1/Rastreador/{novo.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/v1/Rastreador/{novo.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/v1/Rastreador", "GET"));
 
             return CreatedAtAction(nameof(GetById), new { id = novo.Id }, resource);
         }
@@ -109,10 +111,10 @@ namespace api.Controllers
                 return NotFound();
 
             var resource = new Resource<Rastreador> { Data = rastreador };
-            resource.Links.Add("self", new Link($"/api/Rastreador/{rastreador.Id}", "GET"));
-            resource.Links.Add("update", new Link($"/api/Rastreador/{rastreador.Id}", "PUT"));
-            resource.Links.Add("delete", new Link($"/api/Rastreador/{rastreador.Id}", "DELETE"));
-            resource.Links.Add("all", new Link("/api/Rastreador", "GET"));
+            resource.Links.Add("self", new Link($"/api/v1/Rastreador/{rastreador.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/v1/Rastreador/{rastreador.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/v1/Rastreador/{rastreador.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/v1/Rastreador", "GET"));
 
             return Ok(resource);
         }

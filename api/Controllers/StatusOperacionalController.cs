@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using service.Service;
 using library.Model;
 using api.Resources;
+using Asp.Versioning;
 
 namespace api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class StatusOperacionalController : ControllerBase
     {
         private readonly StatusOperacionalService _service;
@@ -29,9 +31,9 @@ namespace api.Controllers
             var items = result.Items.Select(s =>
             {
                 var res = new Resource<StatusOperacional> { Data = s };
-                res.Links.Add("self", new Link($"/api/StatusOperacional/{s.Id}", "GET"));
-                res.Links.Add("update", new Link($"/api/StatusOperacional/{s.Id}", "PUT"));
-                res.Links.Add("delete", new Link($"/api/StatusOperacional/{s.Id}", "DELETE"));
+                res.Links.Add("self", new Link($"/api/v1/StatusOperacional/{s.Id}", "GET"));
+                res.Links.Add("update", new Link($"/api/v1/StatusOperacional/{s.Id}", "PUT"));
+                res.Links.Add("delete", new Link($"/api/v1/StatusOperacional/{s.Id}", "DELETE"));
                 return res;
             }).ToList();
 
@@ -68,10 +70,10 @@ namespace api.Controllers
                 return NotFound();
 
             var resource = new Resource<StatusOperacional> { Data = item };
-            resource.Links.Add("self", new Link($"/api/StatusOperacional/{id}", "GET"));
-            resource.Links.Add("update", new Link($"/api/StatusOperacional/{id}", "PUT"));
-            resource.Links.Add("delete", new Link($"/api/StatusOperacional/{id}", "DELETE"));
-            resource.Links.Add("all", new Link("/api/StatusOperacional", "GET"));
+            resource.Links.Add("self", new Link($"/api/v1/StatusOperacional/{id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/v1/StatusOperacional/{id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/v1/StatusOperacional/{id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/v1/StatusOperacional", "GET"));
 
             return Ok(resource);
         }
@@ -87,10 +89,10 @@ namespace api.Controllers
             var novo = _service.Create(status);
 
             var resource = new Resource<StatusOperacional> { Data = novo };
-            resource.Links.Add("self", new Link($"/api/StatusOperacional/{novo.Id}", "GET"));
-            resource.Links.Add("update", new Link($"/api/StatusOperacional/{novo.Id}", "PUT"));
-            resource.Links.Add("delete", new Link($"/api/StatusOperacional/{novo.Id}", "DELETE"));
-            resource.Links.Add("all", new Link("/api/StatusOperacional", "GET"));
+            resource.Links.Add("self", new Link($"/api/v1/StatusOperacional/{novo.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/v1/StatusOperacional/{novo.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/v1/StatusOperacional/{novo.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/v1/StatusOperacional", "GET"));
 
             return CreatedAtAction(nameof(GetById), new { id = novo.Id }, resource);
         }
@@ -109,10 +111,10 @@ namespace api.Controllers
                 return NotFound();
 
             var resource = new Resource<StatusOperacional> { Data = status };
-            resource.Links.Add("self", new Link($"/api/StatusOperacional/{status.Id}", "GET"));
-            resource.Links.Add("update", new Link($"/api/StatusOperacional/{status.Id}", "PUT"));
-            resource.Links.Add("delete", new Link($"/api/StatusOperacional/{status.Id}", "DELETE"));
-            resource.Links.Add("all", new Link("/api/StatusOperacional", "GET"));
+            resource.Links.Add("self", new Link($"/api/v1/StatusOperacional/{status.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/v1/StatusOperacional/{status.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/v1/StatusOperacional/{status.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/v1/StatusOperacional", "GET"));
 
             return Ok(resource);
         }

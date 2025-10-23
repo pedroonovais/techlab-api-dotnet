@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using service.Service;
 using library.Model;
 using api.Resources;
+using Asp.Versioning;
 
 namespace api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class PerfilController : ControllerBase
     {
         private readonly PerfilService _service;
@@ -29,9 +31,9 @@ namespace api.Controllers
             var items = result.Items.Select(perfil =>
             {
                 var res = new Resource<Perfil> { Data = perfil };
-                res.Links.Add("self", new Link($"/api/Perfil/{perfil.Id}", "GET"));
-                res.Links.Add("update", new Link($"/api/Perfil/{perfil.Id}", "PUT"));
-                res.Links.Add("delete", new Link($"/api/Perfil/{perfil.Id}", "DELETE"));
+                res.Links.Add("self", new Link($"/api/v1/Perfil/{perfil.Id}", "GET"));
+                res.Links.Add("update", new Link($"/api/v1/Perfil/{perfil.Id}", "PUT"));
+                res.Links.Add("delete", new Link($"/api/v1/Perfil/{perfil.Id}", "DELETE"));
                 return res;
             }).ToList();
 
@@ -68,10 +70,10 @@ namespace api.Controllers
                 return NotFound();
 
             var resource = new Resource<Perfil> { Data = perfil };
-            resource.Links.Add("self", new Link($"/api/Perfil/{id}", "GET"));
-            resource.Links.Add("update", new Link($"/api/Perfil/{id}", "PUT"));
-            resource.Links.Add("delete", new Link($"/api/Perfil/{id}", "DELETE"));
-            resource.Links.Add("all", new Link("/api/Perfil", "GET"));
+            resource.Links.Add("self", new Link($"/api/v1/Perfil/{id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/v1/Perfil/{id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/v1/Perfil/{id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/v1/Perfil", "GET"));
 
             return Ok(resource);
         }
@@ -87,10 +89,10 @@ namespace api.Controllers
             var novo = _service.Create(perfil);
 
             var resource = new Resource<Perfil> { Data = novo };
-            resource.Links.Add("self", new Link($"/api/Perfil/{novo.Id}", "GET"));
-            resource.Links.Add("update", new Link($"/api/Perfil/{novo.Id}", "PUT"));
-            resource.Links.Add("delete", new Link($"/api/Perfil/{novo.Id}", "DELETE"));
-            resource.Links.Add("all", new Link("/api/Perfil", "GET"));
+            resource.Links.Add("self", new Link($"/api/v1/Perfil/{novo.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/v1/Perfil/{novo.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/v1/Perfil/{novo.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/v1/Perfil", "GET"));
 
             return CreatedAtAction(nameof(GetById), new { id = novo.Id }, resource);
         }
@@ -109,10 +111,10 @@ namespace api.Controllers
                 return NotFound();
 
             var resource = new Resource<Perfil> { Data = perfil };
-            resource.Links.Add("self", new Link($"/api/Perfil/{perfil.Id}", "GET"));
-            resource.Links.Add("update", new Link($"/api/Perfil/{perfil.Id}", "PUT"));
-            resource.Links.Add("delete", new Link($"/api/Perfil/{perfil.Id}", "DELETE"));
-            resource.Links.Add("all", new Link("/api/Perfil", "GET"));
+            resource.Links.Add("self", new Link($"/api/v1/Perfil/{perfil.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/v1/Perfil/{perfil.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/v1/Perfil/{perfil.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/v1/Perfil", "GET"));
 
             return Ok(resource);
         }

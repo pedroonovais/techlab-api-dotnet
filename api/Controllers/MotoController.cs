@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using service.Service;
 using library.Model;
 using api.Resources;
+using Asp.Versioning;
 
 namespace api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class MotoController : ControllerBase
     {
         private readonly MotoService _service;
@@ -34,9 +36,9 @@ namespace api.Controllers
             var items = result.Items.Select(moto =>
             {
                 var res = new Resource<Moto> { Data = moto };
-                res.Links.Add("self", new Link($"/api/Moto/{moto.Id}", "GET"));
-                res.Links.Add("update", new Link($"/api/Moto/{moto.Id}", "PUT"));
-                res.Links.Add("delete", new Link($"/api/Moto/{moto.Id}", "DELETE"));
+                res.Links.Add("self", new Link($"/api/v1/Moto/{moto.Id}", "GET"));
+                res.Links.Add("update", new Link($"/api/v1/Moto/{moto.Id}", "PUT"));
+                res.Links.Add("delete", new Link($"/api/v1/Moto/{moto.Id}", "DELETE"));
                 return res;
             }).ToList();
 
@@ -83,10 +85,10 @@ namespace api.Controllers
                 Data = moto
             };
 
-            resource.Links.Add("self", new Link($"/api/Moto/{id}", "GET"));
-            resource.Links.Add("update", new Link($"/api/Moto/{id}", "PUT"));
-            resource.Links.Add("delete", new Link($"/api/Moto/{id}", "DELETE"));
-            resource.Links.Add("all", new Link("/api/Moto", "GET"));
+            resource.Links.Add("self", new Link($"/api/v1/Moto/{id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/v1/Moto/{id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/v1/Moto/{id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/v1/Moto", "GET"));
 
             return Ok(resource);
         }
@@ -114,10 +116,10 @@ namespace api.Controllers
                 Data = newMoto
             };
 
-            resource.Links.Add("self", new Link($"/api/Moto/{newMoto.Id}", "GET"));
-            resource.Links.Add("update", new Link($"/api/Moto/{newMoto.Id}", "PUT"));
-            resource.Links.Add("delete", new Link($"/api/Moto/{newMoto.Id}", "DELETE"));
-            resource.Links.Add("all", new Link("/api/Moto", "GET"));
+            resource.Links.Add("self", new Link($"/api/v1/Moto/{newMoto.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/v1/Moto/{newMoto.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/v1/Moto/{newMoto.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/v1/Moto", "GET"));
 
             return CreatedAtAction(nameof(GetById), new { id = newMoto.Id }, resource);
         }
@@ -149,10 +151,10 @@ namespace api.Controllers
                 Data = moto
             };
 
-            resource.Links.Add("self", new Link($"/api/Moto/{moto.Id}", "GET"));
-            resource.Links.Add("update", new Link($"/api/Moto/{moto.Id}", "PUT"));
-            resource.Links.Add("delete", new Link($"/api/Moto/{moto.Id}", "DELETE"));
-            resource.Links.Add("all", new Link("/api/Moto", "GET"));
+            resource.Links.Add("self", new Link($"/api/v1/Moto/{moto.Id}", "GET"));
+            resource.Links.Add("update", new Link($"/api/v1/Moto/{moto.Id}", "PUT"));
+            resource.Links.Add("delete", new Link($"/api/v1/Moto/{moto.Id}", "DELETE"));
+            resource.Links.Add("all", new Link("/api/v1/Moto", "GET"));
 
             return Ok(resource);
         }

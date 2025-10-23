@@ -75,6 +75,78 @@ http://localhost:5000/swagger
 
 ---
 
+## 🔄 Versionamento da API
+
+A API utiliza versionamento por URL Path para garantir compatibilidade e evolução controlada:
+
+- **Versão Atual:** v1
+- **Formato:** `/api/v{version}/[controller]`
+- **Exemplo:** `/api/v1/Usuario`, `/api/v1/Moto`
+
+### Como funciona:
+- Todos os endpoints atuais estão na versão 1
+- Futuras versões (v2, v3, etc.) podem coexistir
+- Headers de resposta incluem `api-supported-versions: 1.0`
+- Swagger documenta a versão ativa
+
+---
+
+## 🏥 Health Checks
+
+A API possui endpoints de Health Checks para monitoramento de saúde e disponibilidade:
+
+### Endpoints Disponíveis:
+
+- **`/health`** - Status completo da API e dependências
+  - Verifica: API + Banco de dados PostgreSQL
+  - Retorna: JSON detalhado com status de cada componente
+
+- **`/health/live`** - Liveness probe
+  - Verifica: Se a API está respondendo
+  - Uso: Kubernetes liveness probe
+
+- **`/health/ready`** - Readiness probe  
+  - Verifica: Se a API está pronta (DB conectado)
+  - Uso: Kubernetes readiness probe
+
+- **`/health-ui`** - Interface visual de monitoramento
+  - Dashboard interativo com histórico
+  - Atualização automática a cada 30 segundos
+
+### Exemplos de Uso:
+
+```bash
+# Verificar saúde completa
+curl http://localhost:8080/health
+
+# Verificar apenas se API está UP
+curl http://localhost:8080/health/live
+
+# Verificar se API está pronta para receber requisições
+curl http://localhost:8080/health/ready
+```
+
+### Resposta Exemplo:
+
+```json
+{
+  "status": "Healthy",
+  "totalDuration": "00:00:00.0123456",
+  "entries": {
+    "API Health": {
+      "status": "Healthy",
+      "description": "API está respondendo"
+    },
+    "PostgreSQL Database": {
+      "status": "Healthy",
+      "description": "Connection successful"
+    }
+  }
+}
+```
+
+---
+
 ## 🛠 Migrações (EF Core)
 
 As migrations são aplicadas automaticamente na inicialização da API.  
@@ -88,74 +160,77 @@ dotnet ef migrations add NomeDaMigration -p data -s api -c data.Context.AppDbCon
 
 ## 📬 Endpoints da API
 
-### 🔹 Usuario (`/api/Usuario`)
+**Versão Atual:** v1  
+**URLs:** `/api/v1/[controller]`
+
+### 🔹 Usuario (`/api/v1/Usuario`)
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
-| GET | `/api/Usuario` | Retorna todos os usuários cadastrados com paginação. |
-| POST | `/api/Usuario` | Retorna todos os usuários cadastrados com paginação. |
-| DELETE | `/api/Usuario/{id}` | Retorna todos os usuários cadastrados com paginação. |
-| GET | `/api/Usuario/{id}` | Retorna todos os usuários cadastrados com paginação. |
-| PUT | `/api/Usuario/{id}` | Retorna todos os usuários cadastrados com paginação. |
+| GET | `/api/v1/Usuario` | Retorna todos os usuários cadastrados com paginação. |
+| POST | `/api/v1/Usuario` | Cadastra um novo usuário. |
+| DELETE | `/api/v1/Usuario/{id}` | Remove um usuário pelo ID. |
+| GET | `/api/v1/Usuario/{id}` | Retorna um usuário específico por ID. |
+| PUT | `/api/v1/Usuario/{id}` | Atualiza os dados de um usuário existente. |
 
 ---
 
-### 🔹 Moto (`/api/Moto`)
+### 🔹 Moto (`/api/v1/Moto`)
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
-| GET | `/api/Moto` | Retorna todas as motos cadastradas com paginação. |
-| POST | `/api/Moto` | Cadastra uma nova moto. |
-| DELETE | `/api/Moto/{id}` | Remove uma moto pelo ID. |
-| GET | `/api/Moto/{id}` | Retorna uma moto específica por ID. |
-| PUT | `/api/Moto/{id}` | Atualiza os dados de uma moto existente. |
+| GET | `/api/v1/Moto` | Retorna todas as motos cadastradas com paginação. |
+| POST | `/api/v1/Moto` | Cadastra uma nova moto. |
+| DELETE | `/api/v1/Moto/{id}` | Remove uma moto pelo ID. |
+| GET | `/api/v1/Moto/{id}` | Retorna uma moto específica por ID. |
+| PUT | `/api/v1/Moto/{id}` | Atualiza os dados de uma moto existente. |
 
 ---
 
-### 🔹 Patio (`/api/Patio`)
+### 🔹 Patio (`/api/v1/Patio`)
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
-| GET | `/api/Patio` | Retorna todos os pátios cadastrados com paginação. |
-| POST | `/api/Patio` | Retorna todos os pátios cadastrados com paginação. |
-| DELETE | `/api/Patio/{id}` | Retorna todos os pátios cadastrados com paginação. |
-| GET | `/api/Patio/{id}` | Retorna todos os pátios cadastrados com paginação. |
-| PUT | `/api/Patio/{id}` | Retorna todos os pátios cadastrados com paginação. |
+| GET | `/api/v1/Patio` | Retorna todos os pátios cadastrados com paginação. |
+| POST | `/api/v1/Patio` | Cadastra um novo pátio. |
+| DELETE | `/api/v1/Patio/{id}` | Remove um pátio pelo ID. |
+| GET | `/api/v1/Patio/{id}` | Retorna um pátio específico por ID. |
+| PUT | `/api/v1/Patio/{id}` | Atualiza os dados de um pátio existente. |
 
 ---
 
-### 🔹 Perfil (`/api/Perfil`)
+### 🔹 Perfil (`/api/v1/Perfil`)
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
-| GET | `/api/Perfil` | Retorna todos os perfis cadastrados com paginação. |
-| POST | `/api/Perfil` | Retorna todos os perfis cadastrados com paginação. |
-| DELETE | `/api/Perfil/{id}` | Retorna todos os perfis cadastrados com paginação. |
-| GET | `/api/Perfil/{id}` | Retorna todos os perfis cadastrados com paginação. |
-| PUT | `/api/Perfil/{id}` | Retorna todos os perfis cadastrados com paginação. |
+| GET | `/api/v1/Perfil` | Retorna todos os perfis cadastrados com paginação. |
+| POST | `/api/v1/Perfil` | Cadastra um novo perfil. |
+| DELETE | `/api/v1/Perfil/{id}` | Remove um perfil pelo ID. |
+| GET | `/api/v1/Perfil/{id}` | Retorna um perfil específico por ID. |
+| PUT | `/api/v1/Perfil/{id}` | Atualiza os dados de um perfil existente. |
 
 ---
 
-### 🔹 Rastreador (`/api/Rastreador`)
+### 🔹 Rastreador (`/api/v1/Rastreador`)
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
-| GET | `/api/Rastreador` | Retorna todos os rastreadores cadastrados com paginação. |
-| POST | `/api/Rastreador` | Retorna todos os rastreadores cadastrados com paginação. |
-| DELETE | `/api/Rastreador/{id}` | Retorna todos os rastreadores cadastrados com paginação. |
-| GET | `/api/Rastreador/{id}` | Retorna todos os rastreadores cadastrados com paginação. |
-| PUT | `/api/Rastreador/{id}` | Retorna todos os rastreadores cadastrados com paginação. |
+| GET | `/api/v1/Rastreador` | Retorna todos os rastreadores cadastrados com paginação. |
+| POST | `/api/v1/Rastreador` | Cadastra um novo rastreador. |
+| DELETE | `/api/v1/Rastreador/{id}` | Remove um rastreador pelo ID. |
+| GET | `/api/v1/Rastreador/{id}` | Retorna um rastreador específico por ID. |
+| PUT | `/api/v1/Rastreador/{id}` | Atualiza os dados de um rastreador existente. |
 
 ---
 
-### 🔹 StatusOperacional (`/api/StatusOperacional`)
+### 🔹 StatusOperacional (`/api/v1/StatusOperacional`)
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
-| GET | `/api/StatusOperacional` | Retorna todos os status operacionais cadastrados com paginação. |
-| POST | `/api/StatusOperacional` | Retorna todos os status operacionais cadastrados com paginação. |
-| DELETE | `/api/StatusOperacional/{id}` | Retorna todos os status operacionais cadastrados com paginação. |
-| GET | `/api/StatusOperacional/{id}` | Retorna todos os status operacionais cadastrados com paginação. |
-| PUT | `/api/StatusOperacional/{id}` | Retorna todos os status operacionais cadastrados com paginação. |
+| GET | `/api/v1/StatusOperacional` | Retorna todos os status operacionais cadastrados com paginação. |
+| POST | `/api/v1/StatusOperacional` | Cadastra um novo status operacional. |
+| DELETE | `/api/v1/StatusOperacional/{id}` | Remove um status operacional pelo ID. |
+| GET | `/api/v1/StatusOperacional/{id}` | Retorna um status operacional específico por ID. |
+| PUT | `/api/v1/StatusOperacional/{id}` | Atualiza os dados de um status operacional existente. |
 
 ---
