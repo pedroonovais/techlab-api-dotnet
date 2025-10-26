@@ -24,6 +24,10 @@ builder.Services.AddScoped<StatusOperacionalService>();
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<AuthService>();
 
+// Serviço de Machine Learning (Singleton para manter modelo em memória)
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<service.ML.MLService>();
+
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
@@ -154,6 +158,16 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate(); // cria/aplica migrations automaticamente
+    
+    // Popula o banco de dados com dados iniciais (seed)
+    Console.WriteLine("[Startup] Verificando necessidade de seed de dados...");
+    await data.Seed.DataSeeder.SeedAsync(db);
+    
+    // Treinar modelo de ML automaticamente no startup
+    Console.WriteLine("[Startup] Iniciando treinamento do modelo de ML...");
+    var mlService = scope.ServiceProvider.GetRequiredService<service.ML.MLService>();
+    await mlService.TrainModelAsync();
+    Console.WriteLine("[Startup] Modelo de ML treinado e pronto para uso!");
 }
 
 // Configure the HTTP request pipeline.

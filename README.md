@@ -7,8 +7,10 @@ A solução é modularizada em camadas e utiliza **Entity Framework Core com Pos
 
 ## 📌 Funcionalidades
 
+- 🤖 **Machine Learning** com previsão de manutenção de motos usando ML.NET
 - 🔐 **Autenticação JWT** com registro e login de usuários
 - 🔒 **Segurança** com hash BCrypt e proteção de rotas
+- 🌱 **Seed de dados automático** - Banco populado com dados de teste na primeira execução
 - Gerenciamento de **usuários** com perfis e permissões
 - Registro e controle de **motos** associadas a usuários
 - Cadastro e monitoramento de **sensores** posicionados no pátio
@@ -44,6 +46,7 @@ A solução é modularizada em camadas e utiliza **Entity Framework Core com Pos
 - ASP.NET Core Web API
 - Entity Framework Core
 - PostgreSQL (via Npgsql)
+- **ML.NET** para Machine Learning e previsões
 - **JWT (JSON Web Tokens)** para autenticação
 - **BCrypt.Net** para hash de senhas
 - Docker / Docker Compose
@@ -70,6 +73,8 @@ Isso irá:
 - Criar o container do **PostgreSQL**
 - Criar o container da **API**
 - Aplicar automaticamente as migrations no banco (`db.Database.Migrate()`)
+- **Popular o banco com dados iniciais** se estiver vazio (seed data)
+- Treinar o modelo de Machine Learning automaticamente
 
 ### 2. Acessar a API
 Abra no navegador:
@@ -83,15 +88,16 @@ http://localhost:5000/swagger
 
 A API utiliza versionamento por URL Path para garantir compatibilidade e evolução controlada:
 
-- **Versão Atual:** v1
+- **Versões Ativas:** v1 e v2
 - **Formato:** `/api/v{version}/[controller]`
-- **Exemplo:** `/api/v1/Usuario`, `/api/v1/Moto`
+- **Exemplos:** `/api/v1/Usuario`, `/api/v1/Moto`, `/api/v2/ML`
 
 ### Como funciona:
-- Todos os endpoints atuais estão na versão 1
-- Futuras versões (v2, v3, etc.) podem coexistir
-- Headers de resposta incluem `api-supported-versions: 1.0`
-- Swagger documenta a versão ativa
+- Endpoints gerais permanecem na versão 1 (v1)
+- Endpoints de Machine Learning (ML) estão na versão 2 (v2)
+- Futuras versões (v3, v4, etc.) podem coexistir
+- Headers de resposta incluem `api-supported-versions: 1.0, 2.0`
+- O Swagger principal documenta v1; endpoints v2 podem não aparecer no doc v1
 
 ---
 
@@ -304,12 +310,163 @@ Para mais detalhes sobre autenticação, consulte:
 
 ---
 
+## 🌱 Dados Iniciais (Seed Data)
+
+Na **primeira execução** da API, o banco de dados é automaticamente populado com dados de exemplo para facilitar testes e desenvolvimento.
+
+### 📊 Dados Criados Automaticamente
+
+#### 👥 Usuários Padrão
+
+| Nome | E-mail | Senha | Perfil |
+|------|--------|-------|--------|
+| Administrador do Sistema | `admin@techlab.com` | `Admin@123` | Administrador |
+| Gerente de Operações | `gerente@techlab.com` | `Gerente@123` | Gerente |
+| Usuário Teste | `usuario@techlab.com` | `Usuario@123` | Usuário Padrão |
+| Pedro Novais | `pedro.novais@techlab.com` | `Pedro@123` | Administrador |
+| Maria Silva | `maria.silva@techlab.com` | `Maria@123` | Gerente |
+
+#### 🏢 Perfis de Acesso
+
+- **Administrador** (Nível 3) - Acesso total ao sistema
+- **Gerente** (Nível 2) - Gerenciamento de operações
+- **Usuário Padrão** (Nível 1) - Acesso básico
+
+#### 🏍️ Status Operacionais
+
+- Disponível
+- Em Uso
+- Manutenção
+- Indisponível
+- Reservada
+
+#### 📍 Rastreadores
+
+- 20 rastreadores GPS (modelos GPS-2000 a GPS-5000)
+- Números de série no formato `TRACK000001` a `TRACK000020`
+
+#### 🏢 Pátios
+
+- **Pátio Centro** - Av. Paulista, 1000 - São Paulo/SP
+- **Pátio Norte** - Rua das Flores, 500 - São Paulo/SP
+- **Pátio Sul** - Av. dos Estados, 2000 - São Paulo/SP
+- **Pátio Leste** - Rua do Comércio, 750 - São Paulo/SP
+- **Pátio Oeste** - Av. Industrial, 1500 - São Paulo/SP
+
+#### 🏍️ Motos
+
+- 20 motos de diversas marcas (Honda, Yamaha, Suzuki, Kawasaki, BMW)
+- Cada moto vinculada a um rastreador e status operacional
+- Placas e chassi gerados automaticamente
+
+### 🚀 Como Funciona
+
+O seed é executado automaticamente durante o startup da API se o banco estiver vazio:
+
+1. ✅ API inicia
+2. ✅ Aplica migrations do EF Core
+3. ✅ **Verifica se o banco está vazio**
+4. ✅ **Se vazio, popula com dados iniciais**
+5. ✅ Treina modelo de Machine Learning
+6. ✅ API fica pronta para uso
+
+### 🔒 Senhas Criptografadas
+
+Todas as senhas são criptografadas com **BCrypt** antes de serem armazenadas no banco de dados, garantindo máxima segurança mesmo em dados de teste.
+
+### 🧪 Testando com Dados de Seed
+
+Após a primeira execução, você pode fazer login com qualquer um dos usuários padrão:
+
+```bash
+POST /api/v1/Auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@techlab.com",
+  "senha": "Admin@123"
+}
+```
+
+**⚠️ Nota:** O seed só é executado quando o banco está completamente vazio. Se você já tem dados, eles não serão sobrescritos.
+
+---
+
+## 🤖 Machine Learning - Previsão de Manutenção
+
+A API utiliza **ML.NET** para prever quando uma moto precisará de manutenção, analisando características como:
+- Idade da moto em meses
+- Número de movimentações registradas
+- Dias desde a última manutenção
+- Tempo médio de permanência no pátio
+
+### 📊 Como Funciona
+
+1. **Treinamento Automático**: O modelo é treinado automaticamente quando a API inicia
+2. **Dados Sintéticos**: Usa 150 registros sintéticos gerados com padrões realistas
+3. **Algoritmo**: FastTree (decision tree) com alta acurácia (~85-90%)
+4. **Previsão**: Retorna probabilidade, recomendações e dias estimados até manutenção
+
+### 🎯 Exemplo de Uso (v2)
+
+```bash
+POST /api/v2/ML/prever-manutencao
+Authorization: Bearer {seu-token}
+Content-Type: application/json
+
+{
+  "motoId": "guid-da-moto"
+}
+```
+
+**Resposta:**
+```json
+{
+  "motoId": "guid-da-moto",
+  "precisaManutencao": true,
+  "probabilidade": 85.5,
+  "confianca": "Alta",
+  "diasEstimadosAteManutencao": 7,
+  "recomendacao": "URGENTE: A moto necessita de manutenção imediata...",
+  "dadosUtilizados": {
+    "idadeMeses": 48.5,
+    "numeroMovimentacoes": 420,
+    "diasDesdeUltimaManutencao": 180,
+    "tempoMedioPermanencia": 15.2
+  }
+}
+```
+
+### 📈 Métricas do Modelo (v2)
+
+Para visualizar a acurácia e performance do modelo:
+
+```bash
+GET /api/v2/ML/metricas-modelo
+Authorization: Bearer {seu-token}
+```
+
+### 📚 Exemplos Práticos
+
+Consulte **[api/ml-examples.http](api/ml-examples.http)** para exemplos completos de requisições.
+
+---
+
 ## 📬 Endpoints da API
 
 **Versão Atual:** v1  
 **URLs:** `/api/v1/[controller]`
 
 ⚠️ **Atenção:** Todos os endpoints abaixo **requerem autenticação JWT** (exceto endpoints de Auth). Inclua o token no header: `Authorization: Bearer {token}`
+
+### 🤖 ML (`/api/v2/ML`) 🔒
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| POST | `/api/v2/ML/prever-manutencao` | Prevê se uma moto precisa de manutenção usando ML. |
+| GET | `/api/v2/ML/metricas-modelo` | Retorna métricas do modelo treinado (acurácia, precisão, etc). |
+
+---
 
 ### 🔐 Auth (`/api/v1/Auth`)
 
@@ -398,6 +555,13 @@ Para mais detalhes sobre autenticação, consulte:
 
 ### 🆕 Novidades Recentes
 
+- **Machine Learning implementado** (Outubro 2025)
+  - ✅ Previsão de manutenção de motos com ML.NET
+  - ✅ Treinamento automático no startup
+  - ✅ Algoritmo FastTree com 85-90% de acurácia
+  - ✅ Análise de 4 features principais
+  - ✅ Recomendações inteligentes baseadas em probabilidade
+
 - **Autenticação JWT implementada** (Outubro 2025)
   - ✅ Registro e login de usuários
   - ✅ Tokens JWT com expiração de 8 horas
@@ -407,6 +571,7 @@ Para mais detalhes sobre autenticação, consulte:
 
 ### 🔗 Links Úteis
 
+- **[api/ml-examples.http](api/ml-examples.http)** - Exemplos de uso do ML
 - **[AUTENTICACAO_JWT.md](AUTENTICACAO_JWT.md)** - Documentação completa sobre autenticação
 - **[CHANGELOG_JWT.md](CHANGELOG_JWT.md)** - Histórico de mudanças na autenticação
 - **[api/auth-examples.http](api/auth-examples.http)** - Exemplos práticos de requisições HTTP
