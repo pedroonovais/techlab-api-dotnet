@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using service.Service;
 using library.Model;
 using api.Resources;
@@ -9,6 +10,7 @@ namespace api.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [Authorize]
     public class MotoController : ControllerBase
     {
         private readonly MotoService _service;

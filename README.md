@@ -7,7 +7,9 @@ A solução é modularizada em camadas e utiliza **Entity Framework Core com Pos
 
 ## 📌 Funcionalidades
 
-- Gerenciamento de **usuários**
+- 🔐 **Autenticação JWT** com registro e login de usuários
+- 🔒 **Segurança** com hash BCrypt e proteção de rotas
+- Gerenciamento de **usuários** com perfis e permissões
 - Registro e controle de **motos** associadas a usuários
 - Cadastro e monitoramento de **sensores** posicionados no pátio
 - Registro de **leituras RFID** para rastrear a movimentação das motos
@@ -42,6 +44,8 @@ A solução é modularizada em camadas e utiliza **Entity Framework Core com Pos
 - ASP.NET Core Web API
 - Entity Framework Core
 - PostgreSQL (via Npgsql)
+- **JWT (JSON Web Tokens)** para autenticação
+- **BCrypt.Net** para hash de senhas
 - Docker / Docker Compose
 - Swagger / Swashbuckle
 - C#
@@ -158,12 +162,167 @@ dotnet ef migrations add NomeDaMigration -p data -s api -c data.Context.AppDbCon
 
 ---
 
+## 🔐 Autenticação JWT
+
+A API utiliza **JSON Web Tokens (JWT)** para autenticação e autorização. Todos os endpoints principais estão protegidos e requerem um token válido.
+
+### 🚀 Como Começar
+
+#### 1️⃣ Registrar um Novo Usuário
+
+```bash
+POST /api/v1/Auth/register
+Content-Type: application/json
+
+{
+  "nome": "João Silva",
+  "email": "joao@techlab.com",
+  "senha": "senha123",
+  "confirmacaoSenha": "senha123"
+}
+```
+
+**Nota:** O campo `perfilId` é **opcional**. Se não fornecido, será criado automaticamente um perfil padrão "Usuário Padrão".
+
+**Resposta (201 Created):**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "tokenType": "Bearer",
+  "expiresIn": 28800,
+  "usuarioId": "guid-do-usuario",
+  "nome": "João Silva",
+  "email": "joao@techlab.com",
+  "perfilId": "guid-do-perfil"
+}
+```
+
+#### 2️⃣ Fazer Login
+
+```bash
+POST /api/v1/Auth/login
+Content-Type: application/json
+
+{
+  "email": "joao@techlab.com",
+  "senha": "senha123"
+}
+```
+
+**Resposta (200 OK):**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "tokenType": "Bearer",
+  "expiresIn": 28800,
+  "usuarioId": "guid-do-usuario",
+  "nome": "João Silva",
+  "email": "joao@techlab.com",
+  "perfilId": "guid-do-perfil"
+}
+```
+
+#### 3️⃣ Usar o Token em Requisições
+
+Após obter o token, inclua-o no header `Authorization` de todas as requisições:
+
+```bash
+GET /api/v1/Usuario
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### 🔑 Endpoints de Autenticação
+
+| Método | Rota | Descrição | Autenticação |
+|--------|------|-----------|--------------|
+| POST | `/api/v1/Auth/register` | Registra um novo usuário e retorna token JWT | ❌ Não requer |
+| POST | `/api/v1/Auth/login` | Autentica um usuário e retorna token JWT | ❌ Não requer |
+| GET | `/api/v1/Auth/check-email?email={email}` | Verifica se um e-mail já está cadastrado | ❌ Não requer |
+| GET | `/api/v1/Auth/me` | Retorna informações do usuário autenticado | ✅ Requer token |
+
+### 🧪 Testando com Swagger
+
+1. Acesse o Swagger em `http://localhost:5000/swagger`
+2. Registre-se ou faça login usando os endpoints de Auth
+3. Copie o token retornado
+4. Clique no botão **"Authorize"** 🔒 no canto superior direito
+5. Digite: `Bearer {seu-token}` (substitua `{seu-token}` pelo token copiado)
+6. Clique em **"Authorize"** e depois **"Close"**
+7. Agora você pode testar todos os endpoints protegidos! ✅
+
+### 📋 Exemplos Práticos
+
+#### Exemplo com cURL:
+
+```bash
+# 1. Fazer login
+TOKEN=$(curl -X POST http://localhost:5000/api/v1/Auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"joao@techlab.com","senha":"senha123"}' \
+  | jq -r '.token')
+
+# 2. Usar o token para acessar endpoint protegido
+curl http://localhost:5000/api/v1/Usuario \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+#### Exemplo com JavaScript/Fetch:
+
+```javascript
+// 1. Fazer login
+const response = await fetch('http://localhost:5000/api/v1/Auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'joao@techlab.com',
+    senha: 'senha123'
+  })
+});
+
+const { token } = await response.json();
+
+// 2. Usar o token
+const usuarios = await fetch('http://localhost:5000/api/v1/Usuario', {
+  headers: { 'Authorization': `Bearer ${token}` }
+});
+```
+
+### 🔒 Segurança
+
+- ✅ Senhas criptografadas com **BCrypt** (impossível reverter)
+- ✅ Tokens JWT assinados digitalmente (HMAC-SHA256)
+- ✅ Tokens válidos por **8 horas** (configurável)
+- ✅ Validação automática em todas as requisições
+- ✅ Todos os endpoints principais protegidos com `[Authorize]`
+
+### 📚 Documentação Completa
+
+Para mais detalhes sobre autenticação, consulte:
+- **[AUTENTICACAO_JWT.md](AUTENTICACAO_JWT.md)** - Guia completo de uso
+- **[CHANGELOG_JWT.md](CHANGELOG_JWT.md)** - Histórico de alterações
+- **[api/auth-examples.http](api/auth-examples.http)** - Exemplos de requisições HTTP
+
+---
+
 ## 📬 Endpoints da API
 
 **Versão Atual:** v1  
 **URLs:** `/api/v1/[controller]`
 
-### 🔹 Usuario (`/api/v1/Usuario`)
+⚠️ **Atenção:** Todos os endpoints abaixo **requerem autenticação JWT** (exceto endpoints de Auth). Inclua o token no header: `Authorization: Bearer {token}`
+
+### 🔐 Auth (`/api/v1/Auth`)
+
+| Método | Rota | Descrição | Autenticação |
+|--------|------|-----------|--------------|
+| POST | `/api/v1/Auth/register` | Registra um novo usuário e retorna token JWT. | ❌ Não requer |
+| POST | `/api/v1/Auth/login` | Autentica um usuário e retorna token JWT. | ❌ Não requer |
+| GET | `/api/v1/Auth/check-email` | Verifica se um e-mail já está cadastrado. | ❌ Não requer |
+| GET | `/api/v1/Auth/me` | Retorna informações do usuário autenticado. | ✅ Requer token |
+
+---
+
+### 🔹 Usuario (`/api/v1/Usuario`) 🔒
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
@@ -175,7 +334,7 @@ dotnet ef migrations add NomeDaMigration -p data -s api -c data.Context.AppDbCon
 
 ---
 
-### 🔹 Moto (`/api/v1/Moto`)
+### 🔹 Moto (`/api/v1/Moto`) 🔒
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
@@ -187,7 +346,7 @@ dotnet ef migrations add NomeDaMigration -p data -s api -c data.Context.AppDbCon
 
 ---
 
-### 🔹 Patio (`/api/v1/Patio`)
+### 🔹 Patio (`/api/v1/Patio`) 🔒
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
@@ -199,7 +358,7 @@ dotnet ef migrations add NomeDaMigration -p data -s api -c data.Context.AppDbCon
 
 ---
 
-### 🔹 Perfil (`/api/v1/Perfil`)
+### 🔹 Perfil (`/api/v1/Perfil`) 🔒
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
@@ -211,7 +370,7 @@ dotnet ef migrations add NomeDaMigration -p data -s api -c data.Context.AppDbCon
 
 ---
 
-### 🔹 Rastreador (`/api/v1/Rastreador`)
+### 🔹 Rastreador (`/api/v1/Rastreador`) 🔒
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
@@ -223,7 +382,7 @@ dotnet ef migrations add NomeDaMigration -p data -s api -c data.Context.AppDbCon
 
 ---
 
-### 🔹 StatusOperacional (`/api/v1/StatusOperacional`)
+### 🔹 StatusOperacional (`/api/v1/StatusOperacional`) 🔒
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
@@ -232,5 +391,27 @@ dotnet ef migrations add NomeDaMigration -p data -s api -c data.Context.AppDbCon
 | DELETE | `/api/v1/StatusOperacional/{id}` | Remove um status operacional pelo ID. |
 | GET | `/api/v1/StatusOperacional/{id}` | Retorna um status operacional específico por ID. |
 | PUT | `/api/v1/StatusOperacional/{id}` | Atualiza os dados de um status operacional existente. |
+
+---
+
+## 📝 Notas
+
+### 🆕 Novidades Recentes
+
+- **Autenticação JWT implementada** (Outubro 2025)
+  - ✅ Registro e login de usuários
+  - ✅ Tokens JWT com expiração de 8 horas
+  - ✅ Senhas criptografadas com BCrypt
+  - ✅ Todos os endpoints protegidos
+  - ✅ Campo `perfilId` opcional no registro (perfil padrão automático)
+
+### 🔗 Links Úteis
+
+- **[AUTENTICACAO_JWT.md](AUTENTICACAO_JWT.md)** - Documentação completa sobre autenticação
+- **[CHANGELOG_JWT.md](CHANGELOG_JWT.md)** - Histórico de mudanças na autenticação
+- **[api/auth-examples.http](api/auth-examples.http)** - Exemplos práticos de requisições HTTP
+- **Swagger UI**: `http://localhost:5000/swagger`
+- **Health Check**: `http://localhost:5000/health`
+- **Health UI**: `http://localhost:5000/health-ui`
 
 ---

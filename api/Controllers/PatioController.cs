@@ -1,5 +1,6 @@
 using library.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using service.Service;
 using api.Resources;
 using Asp.Versioning;
@@ -9,6 +10,7 @@ namespace api.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [Authorize]
     public class PatioController : ControllerBase
     {
         private readonly PatioService _service;

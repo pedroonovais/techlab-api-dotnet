@@ -8,6 +8,10 @@ using Asp.Versioning.ApiExplorer;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,9 +22,9 @@ builder.Services.AddScoped<PerfilService>();
 builder.Services.AddScoped<RastreadorService>();
 builder.Services.AddScoped<StatusOperacionalService>();
 builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 // Configuração de versionamento da API
@@ -36,6 +40,49 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         x => x.MigrationsAssembly("data")));
+
+// Configuração JWT
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("SecretKey não configurada");
+
+builder.Services.Configure<JwtSettings>(jwtSettings);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        ClockSkew = TimeSpan.Zero // Remove o atraso padrão de 5 minutos na expiração
+    };
+
+    // Eventos para logging (útil para debug)
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"[JWT] Falha na autenticação: {context.Exception.Message}");
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            Console.WriteLine($"[JWT] Token validado com sucesso para: {context.Principal?.Identity?.Name}");
+            return Task.CompletedTask;
+        }
+    };
+});
+
+builder.Services.AddAuthorization();
 
 // Configuração de Health Checks
 builder.Services.AddHealthChecks()
@@ -62,11 +109,37 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "TechLab API",
         Version = "v1",
-        Description = "API do sistema de gerenciamento de P�tios da TechLab",
+        Description = "API do sistema de gerenciamento de Pátios da TechLab",
         Contact = new OpenApiContact
         {
             Name = "Pedro Novais",
             Url = new Uri("https://www.linkedin.com/in/pedroonovais/")
+        }
+    });
+
+    // Configuração de autenticação JWT no Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Insira o token JWT no formato: Bearer {seu token}"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
         }
     });
 
@@ -98,6 +171,8 @@ app.UseSwaggerUI(c =>
 
 app.UseHttpsRedirection();
 
+// A ordem é importante: Authentication deve vir antes de Authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 // Mapeia o endpoint de Health Checks com detalhes em JSON
