@@ -154,20 +154,31 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
+// Inicialização que não deve executar em ambiente de testes
+if (!app.Environment.IsEnvironment("Testing"))
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate(); // cria/aplica migrations automaticamente
-    
-    // Popula o banco de dados com dados iniciais (seed)
-    Console.WriteLine("[Startup] Verificando necessidade de seed de dados...");
-    await data.Seed.DataSeeder.SeedAsync(db);
-    
-    // Treinar modelo de ML automaticamente no startup
-    Console.WriteLine("[Startup] Iniciando treinamento do modelo de ML...");
-    var mlService = scope.ServiceProvider.GetRequiredService<service.ML.MLService>();
-    await mlService.TrainModelAsync();
-    Console.WriteLine("[Startup] Modelo de ML treinado e pronto para uso!");
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.Migrate(); // cria/aplica migrations automaticamente
+        
+        // Popula o banco de dados com dados iniciais (seed)
+        Console.WriteLine("[Startup] Verificando necessidade de seed de dados...");
+        await data.Seed.DataSeeder.SeedAsync(db);
+        
+        // Treinar modelo de ML automaticamente no startup (se o serviço estiver registrado)
+        var mlService = scope.ServiceProvider.GetService<service.ML.MLService>();
+        if (mlService != null)
+        {
+            Console.WriteLine("[Startup] Iniciando treinamento do modelo de ML...");
+            await mlService.TrainModelAsync();
+            Console.WriteLine("[Startup] Modelo de ML treinado e pronto para uso!");
+        }
+    }
+}
+else
+{
+    Console.WriteLine("[Startup] Ambiente de teste detectado - pulando migrations, seed e treinamento ML");
 }
 
 // Configure the HTTP request pipeline.
@@ -225,3 +236,9 @@ app.MapHealthChecksUI(options =>
 app.MapControllers();
 
 app.Run();
+
+/// <summary>
+/// Tipo parcial público necessário para testes de integração com WebApplicationFactory
+/// Permite que o projeto de testes referencie o entrypoint da aplicação quando usa top-level statements
+/// </summary>
+public partial class Program { }
