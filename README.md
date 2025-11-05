@@ -77,10 +77,17 @@ Isso irá:
 - Treinar o modelo de Machine Learning automaticamente
 
 ### 2. Acessar a API
-Abra no navegador:
+
+**⚠️ Importante:** O Swagger está configurado na **raiz** da aplicação (não em `/swagger`).
+
+**Docker (recomendado):**
 ```
-http://localhost:5000/swagger
+http://localhost:8080/
 ```
+
+**Desenvolvimento local (sem Docker):**
+- HTTP: `http://localhost:5154/`
+- HTTPS: `https://localhost:7075/`
 
 ---
 
@@ -118,10 +125,6 @@ A API possui endpoints de Health Checks para monitoramento de saúde e disponibi
 - **`/health/ready`** - Readiness probe  
   - Verifica: Se a API está pronta (DB conectado)
   - Uso: Kubernetes readiness probe
-
-- **`/health-ui`** - Interface visual de monitoramento
-  - Dashboard interativo com histórico
-  - Atualização automática a cada 30 segundos
 
 ### Exemplos de Uso:
 
@@ -392,7 +395,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ### 🧪 Testando com Swagger
 
-1. Acesse o Swagger em `http://localhost:5000/swagger`
+1. Acesse o Swagger em `http://localhost:8080/` (Docker) ou `http://localhost:5154/` (desenvolvimento local)
 2. Registre-se ou faça login usando os endpoints de Auth
 3. Copie o token retornado
 4. Clique no botão **"Authorize"** 🔒 no canto superior direito
@@ -402,25 +405,27 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ### 📋 Exemplos Práticos
 
-#### Exemplo com cURL:
+#### Exemplo com cURL (Docker):
 
 ```bash
 # 1. Fazer login
-TOKEN=$(curl -X POST http://localhost:5000/api/v1/Auth/login \
+TOKEN=$(curl -X POST http://localhost:8080/api/v1/Auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"joao@techlab.com","senha":"senha123"}' \
   | jq -r '.token')
 
 # 2. Usar o token para acessar endpoint protegido
-curl http://localhost:5000/api/v1/Usuario \
+curl http://localhost:8080/api/v1/Usuario \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-#### Exemplo com JavaScript/Fetch:
+**Nota:** Para desenvolvimento local, substitua `localhost:8080` por `localhost:5154` (HTTP) ou `localhost:7075` (HTTPS).
+
+#### Exemplo com JavaScript/Fetch (Docker):
 
 ```javascript
 // 1. Fazer login
-const response = await fetch('http://localhost:5000/api/v1/Auth/login', {
+const response = await fetch('http://localhost:8080/api/v1/Auth/login', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -432,10 +437,12 @@ const response = await fetch('http://localhost:5000/api/v1/Auth/login', {
 const { token } = await response.json();
 
 // 2. Usar o token
-const usuarios = await fetch('http://localhost:5000/api/v1/Usuario', {
+const usuarios = await fetch('http://localhost:8080/api/v1/Usuario', {
   headers: { 'Authorization': `Bearer ${token}` }
 });
 ```
+
+**Nota:** Para desenvolvimento local, substitua `localhost:8080` por `localhost:5154` (HTTP) ou `localhost:7075` (HTTPS).
 
 ### 🔒 Segurança
 
@@ -719,8 +726,13 @@ Consulte **[api/ml-examples.http](api/ml-examples.http)** para exemplos completo
 - **[AUTENTICACAO_JWT.md](AUTENTICACAO_JWT.md)** - Documentação completa sobre autenticação
 - **[CHANGELOG_JWT.md](CHANGELOG_JWT.md)** - Histórico de mudanças na autenticação
 - **[api/auth-examples.http](api/auth-examples.http)** - Exemplos práticos de requisições HTTP
-- **Swagger UI**: `http://localhost:5000/swagger`
-- **Health Check**: `http://localhost:5000/health`
-- **Health UI**: `http://localhost:5000/health-ui`
+
+**URLs (Docker):**
+- **Swagger UI**: `http://localhost:8080/` (⚠️ na raiz, não em `/swagger`)
+- **Health Check**: `http://localhost:8080/health`
+
+**URLs (Desenvolvimento Local):**
+- **Swagger UI**: `http://localhost:5154/` ou `https://localhost:7075/`
+- **Health Check**: `http://localhost:5154/health` ou `https://localhost:7075/health`
 
 ---

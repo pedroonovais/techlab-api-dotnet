@@ -99,14 +99,6 @@ builder.Services.AddHealthChecks()
         HealthCheckResult.Healthy("API está respondendo"), 
         tags: new[] { "api", "live" });
 
-// Health Checks UI
-builder.Services.AddHealthChecksUI(options =>
-{
-    options.SetEvaluationTimeInSeconds(30); // Avalia a cada 30 segundos
-    options.MaximumHistoryEntriesPerEndpoint(50);
-    options.AddHealthCheckEndpoint("TechLab API", "/health");
-}).AddInMemoryStorage();
-
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -224,13 +216,6 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {
     Predicate = check => check.Tags.Contains("ready"),
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-});
-
-// UI visual para Health Checks
-app.MapHealthChecksUI(options =>
-{
-    options.UIPath = "/health-ui";
-    options.ApiPath = "/health-ui-api";
 });
 
 app.MapControllers();
