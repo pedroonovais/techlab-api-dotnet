@@ -141,51 +141,6 @@ namespace api.Controllers
         }
 
         /// <summary>
-        /// Obtém as métricas do modelo de Machine Learning treinado
-        /// </summary>
-        /// <returns>Métricas de acurácia, precisão, recall, etc.</returns>
-        /// <response code="200">Métricas obtidas com sucesso</response>
-        /// <response code="503">Modelo não treinado ainda</response>
-        [HttpGet("metricas-modelo")]
-        [ProducesResponseType(typeof(ModelMetricsResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
-        public IActionResult ObterMetricasModelo()
-        {
-            Console.WriteLine("[MLController] Requisição de métricas do modelo");
-
-            var metricas = _mlService.GetModelMetrics();
-
-            if (metricas == null)
-            {
-                Console.WriteLine("[MLController] Métricas não disponíveis - modelo não treinado");
-                return StatusCode(503, new
-                {
-                    message = "O modelo de ML ainda está sendo treinado. Por favor, tente novamente em alguns segundos.",
-                    status = "ModelNotReady"
-                });
-            }
-
-            // Converter métricas dinâmicas para DTO tipado
-            dynamic metricasDynamic = metricas;
-            
-            var response = new ModelMetricsResponse
-            {
-                Acuracia = (float)metricasDynamic.Acuracia * 100,
-                PrecisaoPositiva = (float)metricasDynamic.PrecisaoPositiva * 100,
-                RecallPositivo = (float)metricasDynamic.RecallPositivo * 100,
-                F1Score = (float)metricasDynamic.F1Score * 100,
-                AUC = (float)metricasDynamic.AUC * 100,
-                QuantidadeDadosTreinamento = (int)metricasDynamic.QuantidadeDadosTreinamento,
-                DataTreinamento = (DateTime)metricasDynamic.DataTreinamento,
-                Status = "Treinado e pronto para uso"
-            };
-
-            Console.WriteLine($"[MLController] Métricas retornadas: Acurácia={response.Acuracia:F2}%");
-
-            return Ok(response);
-        }
-
-        /// <summary>
         /// Gera recomendação textual baseada na previsão
         /// </summary>
         private string GerarRecomendacao(bool precisaManu, float probabilidade, service.ML.Models.MotoManutencaoData dados)

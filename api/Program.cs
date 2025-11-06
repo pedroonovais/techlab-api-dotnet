@@ -6,8 +6,8 @@ using System.Reflection;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -186,16 +186,48 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty;
 });
 
-app.UseHttpsRedirection();
+// HTTPS Redirection apenas em produção (evita warning em desenvolvimento sem HTTPS)
+if (app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
 
 // A ordem é importante: Authentication deve vir antes de Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
+// ResponseWriter customizado para Health Checks (sem dependência do HealthChecks.UI)
+static Task WriteHealthCheckResponse(HttpContext context, HealthReport report)
+{
+    context.Response.ContentType = "application/json";
+    
+    var result = JsonSerializer.Serialize(new
+    {
+        status = report.Status.ToString(),
+        totalDuration = report.TotalDuration.TotalMilliseconds,
+        entries = report.Entries.Select(e => new
+        {
+            name = e.Key,
+            status = e.Value.Status.ToString(),
+            description = e.Value.Description,
+            duration = e.Value.Duration.TotalMilliseconds,
+            tags = e.Value.Tags,
+            data = e.Value.Data,
+            exception = e.Value.Exception?.Message
+        })
+    }, new JsonSerializerOptions
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
+    
+    return context.Response.WriteAsync(result);
+}
+
 // Mapeia o endpoint de Health Checks com detalhes em JSON
 app.MapHealthChecks("/health", new HealthCheckOptions
 {
-    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+    ResponseWriter = WriteHealthCheckResponse,
     ResultStatusCodes =
     {
         [HealthStatus.Healthy] = StatusCodes.Status200OK,
@@ -208,14 +240,14 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 app.MapHealthChecks("/health/live", new HealthCheckOptions
 {
     Predicate = check => check.Tags.Contains("live"),
-    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    ResponseWriter = WriteHealthCheckResponse
 });
 
 // Endpoint para readiness (verifica dependências como DB)
 app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {
     Predicate = check => check.Tags.Contains("ready"),
-    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    ResponseWriter = WriteHealthCheckResponse
 });
 
 app.MapControllers();

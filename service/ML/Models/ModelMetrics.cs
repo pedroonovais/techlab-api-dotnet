@@ -1,39 +1,40 @@
-namespace api.DTOs.ML
+namespace service.ML.Models
 {
     /// <summary>
-    /// DTO para resposta com métricas do modelo de ML
+    /// Modelo de métricas do modelo de Machine Learning treinado
+    /// Contém todas as métricas de avaliação do modelo de classificação binária
     /// </summary>
-    public class ModelMetricsResponse
+    public class ModelMetrics
     {
         /// <summary>
-        /// Acurácia do modelo (0-100%)
+        /// Acurácia do modelo (0.0 a 1.0)
         /// Percentual de previsões corretas sobre o total
         /// </summary>
-        public float Acuracia { get; set; }
+        public double Acuracia { get; set; }
 
         /// <summary>
-        /// Precisão positiva (0-100%)
+        /// Precisão positiva (0.0 a 1.0)
         /// Das previsões positivas, quantas estavam corretas
         /// </summary>
-        public float PrecisaoPositiva { get; set; }
+        public double PrecisaoPositiva { get; set; }
 
         /// <summary>
-        /// Recall positivo (0-100%)
+        /// Recall positivo (0.0 a 1.0)
         /// Dos casos positivos reais, quantos foram identificados
         /// </summary>
-        public float RecallPositivo { get; set; }
+        public double RecallPositivo { get; set; }
 
         /// <summary>
-        /// F1 Score (0-100%)
+        /// F1 Score (0.0 a 1.0)
         /// Média harmônica entre precisão e recall
         /// </summary>
-        public float F1Score { get; set; }
+        public double F1Score { get; set; }
 
         /// <summary>
-        /// AUC - Area Under Curve (0-100%)
+        /// AUC - Area Under Curve (0.0 a 1.0)
         /// Medida da capacidade do modelo de distinguir entre classes
         /// </summary>
-        public float AUC { get; set; }
+        public double AUC { get; set; }
 
         /// <summary>
         /// Quantidade de dados usados no treinamento
@@ -44,11 +45,6 @@ namespace api.DTOs.ML
         /// Data e hora do treinamento do modelo
         /// </summary>
         public DateTime DataTreinamento { get; set; }
-
-        /// <summary>
-        /// Status do modelo
-        /// </summary>
-        public required string Status { get; set; }
     }
 }
 

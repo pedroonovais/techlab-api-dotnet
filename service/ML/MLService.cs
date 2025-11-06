@@ -72,7 +72,7 @@ namespace service.ML
 
                 // Armazenar modelo e métricas em cache (não expira)
                 _cache.Set(MODEL_CACHE_KEY, modelo);
-                _cache.Set(METRICS_CACHE_KEY, new
+                _cache.Set(METRICS_CACHE_KEY, new ModelMetrics
                 {
                     Acuracia = metricas.Accuracy,
                     PrecisaoPositiva = metricas.PositivePrecision,
@@ -187,10 +187,11 @@ namespace service.ML
         /// Obtém as métricas do modelo treinado
         /// </summary>
         /// <returns>Métricas do modelo ou null se não treinado</returns>
-        public object? GetModelMetrics()
+        public ModelMetrics? GetModelMetrics()
         {
-            if (_cache.TryGetValue(METRICS_CACHE_KEY, out object? metricas))
+            if (_cache.TryGetValue<ModelMetrics>(METRICS_CACHE_KEY, out var metricas))
             {
+                Console.WriteLine("[MLService] Métricas recuperadas do cache");
                 return metricas;
             }
 

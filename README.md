@@ -588,15 +588,6 @@ Content-Type: application/json
 }
 ```
 
-### 📈 Métricas do Modelo (v2)
-
-Para visualizar a acurácia e performance do modelo:
-
-```bash
-GET /api/v2/ML/metricas-modelo
-Authorization: Bearer {seu-token}
-```
-
 ### 📚 Exemplos Práticos
 
 Consulte **[api/ml-examples.http](api/ml-examples.http)** para exemplos completos de requisições.
@@ -615,7 +606,6 @@ Consulte **[api/ml-examples.http](api/ml-examples.http)** para exemplos completo
 | Método | Rota | Descrição |
 |--------|------|-----------|
 | POST | `/api/v2/ML/prever-manutencao` | Prevê se uma moto precisa de manutenção usando ML. |
-| GET | `/api/v2/ML/metricas-modelo` | Retorna métricas do modelo treinado (acurácia, precisão, etc). |
 
 ---
 
