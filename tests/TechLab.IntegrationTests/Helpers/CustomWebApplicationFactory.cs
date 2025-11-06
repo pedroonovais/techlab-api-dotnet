@@ -36,34 +36,62 @@ namespace TechLab.IntegrationTests.Helpers
 
             builder.ConfigureTestServices(services =>
             {
-                // Remover todas as instâncias de configuração do PostgreSQL
-                var descriptors = services.Where(
-                    d => d.ServiceType == typeof(DbContextOptions<AppDbContext>)).ToList();
+                // Remover todas as configurações de DbContext existentes
+                var dbContextDescriptors = services.Where(
+                    d => d.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
+                         d.ServiceType == typeof(DbContextOptions) ||
+                         (d.ServiceType.IsGenericType && 
+                          d.ServiceType.GetGenericTypeDefinition() == typeof(DbContextOptions<>))).ToList();
                 
-                foreach (var descriptor in descriptors)
+                foreach (var descriptor in dbContextDescriptors)
                 {
                     services.Remove(descriptor);
                 }
 
-                // Adicionar banco InMemory para testes
+                // Remover o AppDbContext se já estiver registrado
+                var appDbContextDescriptor = services.SingleOrDefault(d => 
+                    d.ServiceType == typeof(AppDbContext));
+                if (appDbContextDescriptor != null)
+                {
+                    services.Remove(appDbContextDescriptor);
+                }
+
+                // Adicionar banco InMemory para testes (substituindo completamente o PostgreSQL)
+                // O Program.cs não registra PostgreSQL em ambiente Testing, então não há conflito
                 services.AddDbContext<AppDbContext>(options =>
                 {
                     options.UseInMemoryDatabase($"InMemoryTestDb_{Guid.NewGuid()}");
-                });
+                }, ServiceLifetime.Scoped);
 
                 // Remover o serviço de ML para evitar treinamento em testes
                 services.RemoveAll(typeof(service.ML.MLService));
                 
-                // Adicionar esquema de autenticação de teste
-                services.AddAuthentication(TestAuthenticationHandler.SchemeName)
-                    .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
-                        TestAuthenticationHandler.SchemeName,
-                        options => { });
+                // Adicionar autenticação de teste ANTES do JWT Bearer
+                // Isso permite que o TestAuthenticationHandler seja chamado quando o JWT falhar
+                services.AddAuthentication(options =>
+                {
+                    // Configurar TestScheme como padrão para sobrescrever JWT Bearer
+                    options.DefaultAuthenticateScheme = TestAuthenticationHandler.SchemeName;
+                    options.DefaultChallengeScheme = TestAuthenticationHandler.SchemeName;
+                    options.DefaultScheme = TestAuthenticationHandler.SchemeName;
+                })
+                .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
+                    TestAuthenticationHandler.SchemeName,
+                    options => { });
+                
+                // Configurar política de autorização permissiva para testes
+                services.AddAuthorization(options =>
+                {
+                    options.DefaultPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+                        .AddAuthenticationSchemes(TestAuthenticationHandler.SchemeName)
+                        .RequireAuthenticatedUser()
+                        .Build();
+                });
 
                 // Log para debug: indicar que estamos usando configuração de teste
                 Console.WriteLine("[CustomWebApplicationFactory] Configuração de teste aplicada:");
                 Console.WriteLine("  - Banco de dados: InMemory");
-                Console.WriteLine("  - Autenticação: TestAuthenticationHandler");
+                Console.WriteLine("  - Autenticação: TestAuthenticationHandler (esquema padrão)");
                 Console.WriteLine("  - Ambiente: Testing");
             });
         }

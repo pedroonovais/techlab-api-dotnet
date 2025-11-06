@@ -196,7 +196,16 @@ Para restaurar dependências, compilar e executar todos os testes:
 dotnet test techlab-api-dotnet.sln
 ```
 
-> **Nota:** É necessário especificar o arquivo `.sln` pois há múltiplos projetos na pasta raiz.
+> **⚠️ Importante:** Os projetos de teste (`TechLab.UnitTests` e `TechLab.IntegrationTests`) precisam ser adicionados à solution manualmente. Se o comando acima não executar os testes, adicione-os com:
+> ```bash
+> dotnet sln techlab-api-dotnet.sln add tests/TechLab.UnitTests/TechLab.UnitTests.csproj
+> dotnet sln techlab-api-dotnet.sln add tests/TechLab.IntegrationTests/TechLab.IntegrationTests.csproj
+> ```
+> 
+> **Alternativa:** Execute os testes diretamente pelos projetos:
+> ```bash
+> dotnet test tests/TechLab.UnitTests/TechLab.UnitTests.csproj tests/TechLab.IntegrationTests/TechLab.IntegrationTests.csproj
+> ```
 
 ### 🔬 Executar Apenas Testes Unitários (✅ Recomendado)
 
@@ -212,7 +221,7 @@ dotnet test tests/TechLab.UnitTests/TechLab.UnitTests.csproj
 dotnet test tests/TechLab.IntegrationTests/TechLab.IntegrationTests.csproj
 ```
 
-**Status:** ⚠️ Estrutura implementada (7 testes) - requer ajuste no esquema de autenticação
+**Status:** ✅ **7 testes passando com sucesso!** Todos os testes de integração estão funcionando corretamente com autenticação de teste e banco InMemory.
 
 ### 📊 Executar com Cobertura Detalhada
 
@@ -220,10 +229,14 @@ dotnet test tests/TechLab.IntegrationTests/TechLab.IntegrationTests.csproj
 dotnet test techlab-api-dotnet.sln --verbosity normal
 ```
 
-Ou para apenas testes unitários com detalhes:
+Ou para testes específicos com detalhes:
 
 ```bash
+# Testes unitários com detalhes
 dotnet test tests/TechLab.UnitTests/TechLab.UnitTests.csproj --verbosity normal
+
+# Testes de integração com detalhes
+dotnet test tests/TechLab.IntegrationTests/TechLab.IntegrationTests.csproj --verbosity normal
 ```
 
 ### ✅ Características dos Testes
@@ -307,9 +320,9 @@ Get_DeveRetornar200OK_QuandoAutenticado()
 | Tipo | Status | Quantidade | Observações |
 |------|--------|------------|-------------|
 | **Testes Unitários** | ✅ Passando | 11/11 (100%) | Validam toda lógica de negócio do MotoService |
-| **Testes de Integração** | ⚠️ Implementados | 7/7 | Estrutura completa - ajuste de autenticação pendente |
+| **Testes de Integração** | ✅ Passando | 7/7 (100%) | Validam endpoints HTTP completos com autenticação de teste |
 
-**Recomendação:** Execute os testes unitários regularmente durante o desenvolvimento. Eles são rápidos, isolados e validam completamente as regras de negócio!
+**Recomendação:** Execute os testes regularmente durante o desenvolvimento. Os testes unitários são mais rápidos e podem ser executados com frequência. Os testes de integração validam o sistema completo e devem ser executados antes de commits importantes!
 
 ---
 
@@ -1005,6 +1018,13 @@ console.log('Previsão de manutenção:', mlData);
 ## 📝 Notas
 
 ### 🆕 Novidades Recentes
+
+- **Testes de Integração corrigidos e funcionando** (Janeiro 2025)
+  - ✅ 7 testes de integração passando (100%)
+  - ✅ Autenticação de teste implementada com `TestAuthenticationHandler`
+  - ✅ Banco InMemory configurado corretamente para testes
+  - ✅ Ambiente de teste isolado (não interfere com desenvolvimento)
+  - ✅ Warnings MSB3277 corrigidos (versões do EntityFrameworkCore alinhadas)
 
 - **Machine Learning implementado** (Outubro 2025)
   - ✅ Previsão de manutenção de motos com ML.NET

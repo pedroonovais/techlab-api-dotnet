@@ -40,51 +40,66 @@ builder.Services.AddApiVersioning(options =>
     options.ApiVersionReader = new Asp.Versioning.UrlSegmentApiVersionReader();
 }).AddMvc();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        x => x.MigrationsAssembly("data")));
-
-// Configuração JWT
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("SecretKey não configurada");
-
-builder.Services.Configure<JwtSettings>(jwtSettings);
-
-builder.Services.AddAuthentication(options =>
+// Registrar banco de dados apenas se não estiver em ambiente de teste
+// Em ambiente de teste, o WebApplicationFactory configurará InMemory
+if (!builder.Environment.IsEnvironment("Testing"))
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-        ClockSkew = TimeSpan.Zero // Remove o atraso padrão de 5 minutos na expiração
-    };
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(
+            builder.Configuration.GetConnectionString("DefaultConnection"),
+            x => x.MigrationsAssembly("data")));
+}
 
-    // Eventos para logging (útil para debug)
-    options.Events = new JwtBearerEvents
+// Configuração JWT (não registrar em ambiente de teste)
+// O ambiente de teste usará TestAuthenticationHandler configurado no WebApplicationFactory
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+    var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("SecretKey não configurada");
+
+    builder.Services.Configure<JwtSettings>(jwtSettings);
+
+    builder.Services.AddAuthentication(options =>
     {
-        OnAuthenticationFailed = context =>
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            Console.WriteLine($"[JWT] Falha na autenticação: {context.Exception.Message}");
-            return Task.CompletedTask;
-        },
-        OnTokenValidated = context =>
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+            ClockSkew = TimeSpan.Zero // Remove o atraso padrão de 5 minutos na expiração
+        };
+
+        // Eventos para logging (útil para debug)
+        options.Events = new JwtBearerEvents
         {
-            Console.WriteLine($"[JWT] Token validado com sucesso para: {context.Principal?.Identity?.Name}");
-            return Task.CompletedTask;
-        }
-    };
-});
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine($"[JWT] Falha na autenticação: {context.Exception.Message}");
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Console.WriteLine($"[JWT] Token validado com sucesso para: {context.Principal?.Identity?.Name}");
+                return Task.CompletedTask;
+            }
+        };
+    });
+}
+else
+{
+    // Em ambiente de teste, apenas adicionar estrutura básica de autenticação
+    // O TestAuthenticationHandler será configurado no WebApplicationFactory
+    builder.Services.AddAuthentication();
+}
 
 builder.Services.AddAuthorization();
 
