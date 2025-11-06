@@ -1,6 +1,6 @@
 # TechLab Api DotNet
 
-**TechLab Api DotNet** é uma API desenvolvida em .NET para o sistema de **gerenciamento de pátios**, com foco no controle de localização de motos utilizando sensores e tecnologia RFID.  
+**TechLab Api DotNet** é uma API desenvolvida em .NET para o sistema de **Gerenciamento de pátios**, com foco no controle de localização de motos utilizando rastreadores GPS.  
 A solução é modularizada em camadas e utiliza **Entity Framework Core com PostgreSQL** rodando em **Docker Compose**. Conta também com documentação interativa via Swagger.
 
 ---
@@ -12,11 +12,11 @@ A solução é modularizada em camadas e utiliza **Entity Framework Core com Pos
 - 🔒 **Segurança** com hash BCrypt e proteção de rotas
 - 🌱 **Seed de dados automático** - Banco populado com dados de teste na primeira execução
 - Gerenciamento de **usuários** com perfis e permissões
-- Registro e controle de **motos** associadas a usuários
-- Cadastro e monitoramento de **sensores** posicionados no pátio
-- Registro de **leituras RFID** para rastrear a movimentação das motos
-- Administração de **pátios**, com possibilidade de ativar/desativar unidades
-- API RESTful com respostas em JSON
+- Registro e controle de **motos** com rastreadores GPS
+- Cadastro e monitoramento de **rastreadores** (IoT) para localização de motos
+- Administração de **pátios** com localização e controle
+- Gerenciamento de **status operacionais** das motos
+- API RESTful com respostas em JSON e HATEOAS
 - Documentação interativa via Swagger
 - Banco de dados PostgreSQL em container
 - Migrações automáticas com EF Core
@@ -81,9 +81,7 @@ Isso irá:
 **⚠️ Importante:** O Swagger está configurado na **raiz** da aplicação (não em `/swagger`).
 
 **Docker (recomendado):**
-```
-http://localhost:8080/
-```
+- Swagger UI: `http://localhost:8080/`
 
 **Desenvolvimento local (sem Docker):**
 - HTTP: `http://localhost:5154/`
@@ -452,12 +450,6 @@ const usuarios = await fetch('http://localhost:8080/api/v1/Usuario', {
 - ✅ Validação automática em todas as requisições
 - ✅ Todos os endpoints principais protegidos com `[Authorize]`
 
-### 📚 Documentação Completa
-
-Para mais detalhes sobre autenticação, consulte:
-- **[AUTENTICACAO_JWT.md](AUTENTICACAO_JWT.md)** - Guia completo de uso
-- **[CHANGELOG_JWT.md](CHANGELOG_JWT.md)** - Histórico de alterações
-- **[api/auth-examples.http](api/auth-examples.http)** - Exemplos de requisições HTTP
 
 ---
 
@@ -588,9 +580,327 @@ Content-Type: application/json
 }
 ```
 
-### 📚 Exemplos Práticos
+---
 
-Consulte **[api/ml-examples.http](api/ml-examples.http)** para exemplos completos de requisições.
+## 🔄 Fluxo de Exemplo Completo
+
+Esta seção demonstra um fluxo completo de uso da API, desde a autenticação até o cadastro de uma moto com rastreador (IoT) e previsão de manutenção.
+
+### 🎯 Cenário: Cadastrar uma Nova Moto com Rastreador
+
+**Passo a passo:**
+1. ✅ Autenticar no sistema
+2. ✅ Listar status operacionais disponíveis
+3. ✅ Criar um rastreador (IoT)
+4. ✅ Cadastrar uma moto associada ao rastreador
+5. ✅ Consultar a moto criada
+6. ✅ (Opcional) Prever manutenção usando ML
+
+### 📋 Exemplo Completo com cURL
+
+#### 1️⃣ Autenticar no Sistema
+
+```bash
+# Fazer login para obter o token JWT
+TOKEN=$(curl -X POST http://localhost:8080/api/v1/Auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@techlab.com",
+    "senha": "Admin@123"
+  }' | jq -r '.token')
+
+echo "Token obtido: $TOKEN"
+```
+
+**Resposta esperada:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "tokenType": "Bearer",
+  "expiresIn": 28800,
+  "usuarioId": "guid-do-usuario",
+  "nome": "Administrador do Sistema",
+  "email": "admin@techlab.com",
+  "perfilId": "guid-do-perfil"
+}
+```
+
+#### 2️⃣ Listar Status Operacionais
+
+```bash
+# Listar status operacionais disponíveis (já criados no seed)
+STATUS_RESPONSE=$(curl -X GET "http://localhost:8080/api/v1/StatusOperacional?pageSize=10" \
+  -H "Authorization: Bearer $TOKEN")
+
+# Extrair o ID do status "Disponível" (primeiro item geralmente)
+STATUS_ID=$(echo $STATUS_RESPONSE | jq -r '.items[0].data.id')
+
+echo "Status Operacional ID: $STATUS_ID"
+```
+
+**Resposta esperada:**
+```json
+{
+  "items": [
+    {
+      "data": {
+        "id": "guid-do-status",
+        "descricao": "Disponível"
+      },
+      "links": { ... }
+    },
+    ...
+  ],
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalItems": 5,
+  "totalPages": 1
+}
+```
+
+#### 3️⃣ Criar um Rastreador (IoT)
+
+```bash
+# Criar um novo rastreador GPS
+RASTREADOR_RESPONSE=$(curl -X POST http://localhost:8080/api/v1/Rastreador \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "numeroSerie": "TRACK000999",
+    "modelo": "GPS-6000",
+    "ativo": true
+  }')
+
+# Extrair o ID do rastreador criado
+RASTREADOR_ID=$(echo $RASTREADOR_RESPONSE | jq -r '.data.id')
+
+echo "Rastreador criado com ID: $RASTREADOR_ID"
+```
+
+**Resposta esperada (201 Created):**
+```json
+{
+  "data": {
+    "id": "guid-do-rastreador",
+    "numeroSerie": "TRACK000999",
+    "modelo": "GPS-6000",
+    "dtCadastro": "2025-01-15T10:30:00Z",
+    "dtAtualizacao": "2025-01-15T10:30:00Z",
+    "ativo": true
+  },
+  "links": {
+    "self": { "href": "/api/v1/Rastreador/{id}", "method": "GET" },
+    ...
+  }
+}
+```
+
+#### 4️⃣ Cadastrar uma Moto com o Rastreador
+
+```bash
+# Criar uma nova moto associada ao rastreador e status operacional
+MOTO_RESPONSE=$(curl -X POST http://localhost:8080/api/v1/Moto \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"marca\": \"Honda\",
+    \"modelo\": \"CB 600F Hornet\",
+    \"placa\": \"ABC1D23\",
+    \"chassi\": \"9BWHON12345678901\",
+    \"idStatusOperacional\": \"$STATUS_ID\",
+    \"idRastreador\": \"$RASTREADOR_ID\",
+    \"ativo\": true
+  }")
+
+# Extrair o ID da moto criada
+MOTO_ID=$(echo $MOTO_RESPONSE | jq -r '.data.id')
+
+echo "Moto criada com ID: $MOTO_ID"
+```
+
+**Resposta esperada (201 Created):**
+```json
+{
+  "data": {
+    "id": "guid-da-moto",
+    "marca": "Honda",
+    "modelo": "CB 600F Hornet",
+    "placa": "ABC1D23",
+    "chassi": "9BWHON12345678901",
+    "idStatusOperacional": "guid-do-status",
+    "idRastreador": "guid-do-rastreador",
+    "dtCadastro": "2025-01-15T10:35:00Z",
+    "dtAtualizacao": "2025-01-15T10:35:00Z",
+    "ativo": true
+  },
+  "links": {
+    "self": { "href": "/api/v1/Moto/{id}", "method": "GET" },
+    ...
+  }
+}
+```
+
+#### 5️⃣ Consultar a Moto Criada
+
+```bash
+# Consultar os detalhes da moto criada
+curl -X GET "http://localhost:8080/api/v1/Moto/$MOTO_ID" \
+  -H "Authorization: Bearer $TOKEN" | jq
+```
+
+**Resposta esperada (200 OK):**
+```json
+{
+  "data": {
+    "id": "guid-da-moto",
+    "marca": "Honda",
+    "modelo": "CB 600F Hornet",
+    "placa": "ABC1D23",
+    "chassi": "9BWHON12345678901",
+    "idStatusOperacional": "guid-do-status",
+    "idRastreador": "guid-do-rastreador",
+    "dtCadastro": "2025-01-15T10:35:00Z",
+    "dtAtualizacao": "2025-01-15T10:35:00Z",
+    "ativo": true
+  },
+  "links": { ... }
+}
+```
+
+#### 6️⃣ Prever Manutenção usando ML (Opcional)
+
+```bash
+# Usar Machine Learning para prever se a moto precisa de manutenção
+curl -X POST http://localhost:8080/api/v2/ML/prever-manutencao \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"motoId\": \"$MOTO_ID\"
+  }" | jq
+```
+
+**Resposta esperada (200 OK):**
+```json
+{
+  "motoId": "guid-da-moto",
+  "precisaManutencao": false,
+  "probabilidade": 15.2,
+  "confianca": "Baixa",
+  "diasEstimadosAteManutencao": 120,
+  "recomendacao": "A moto está em bom estado. Continue monitorando...",
+  "dadosUtilizados": {
+    "idadeMeses": 12.5,
+    "numeroMovimentacoes": 85,
+    "diasDesdeUltimaManutencao": 30,
+    "tempoMedioPermanencia": 8.5
+  }
+}
+```
+
+### 🎨 Exemplo Completo com JavaScript/Fetch
+
+```javascript
+const API_BASE = 'http://localhost:8080';
+
+// 1. Autenticar
+const loginResponse = await fetch(`${API_BASE}/api/v1/Auth/login`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'admin@techlab.com',
+    senha: 'Admin@123'
+  })
+});
+const { token } = await loginResponse.json();
+
+// 2. Listar status operacionais
+const statusResponse = await fetch(`${API_BASE}/api/v1/StatusOperacional?pageSize=10`, {
+  headers: { 'Authorization': `Bearer ${token}` }
+});
+const statusData = await statusResponse.json();
+const statusId = statusData.items[0].data.id; // Status "Disponível"
+
+// 3. Criar rastreador
+const rastreadorResponse = await fetch(`${API_BASE}/api/v1/Rastreador`, {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    numeroSerie: 'TRACK000999',
+    modelo: 'GPS-6000',
+    ativo: true
+  })
+});
+const rastreadorData = await rastreadorResponse.json();
+const rastreadorId = rastreadorData.data.id;
+
+// 4. Cadastrar moto
+const motoResponse = await fetch(`${API_BASE}/api/v1/Moto`, {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    marca: 'Honda',
+    modelo: 'CB 600F Hornet',
+    placa: 'ABC1D23',
+    chassi: '9BWHON12345678901',
+    idStatusOperacional: statusId,
+    idRastreador: rastreadorId,
+    ativo: true
+  })
+});
+const motoData = await motoResponse.json();
+const motoId = motoData.data.id;
+
+console.log('Moto criada:', motoId);
+
+// 5. Consultar moto criada
+const motoDetails = await fetch(`${API_BASE}/api/v1/Moto/${motoId}`, {
+  headers: { 'Authorization': `Bearer ${token}` }
+});
+const motoDetailsData = await motoDetails.json();
+console.log('Detalhes da moto:', motoDetailsData);
+
+// 6. Prever manutenção (ML)
+const mlResponse = await fetch(`${API_BASE}/api/v2/ML/prever-manutencao`, {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ motoId })
+});
+const mlData = await mlResponse.json();
+console.log('Previsão de manutenção:', mlData);
+```
+
+### 📝 Notas Importantes
+
+- **Autenticação obrigatória:** Todos os endpoints (exceto Auth) requerem o token JWT no header `Authorization: Bearer {token}`
+- **Campos obrigatórios para Moto:**
+  - `marca` (string) - obrigatório
+  - `modelo` (string) - obrigatório
+  - `idStatusOperacional` (Guid) - obrigatório
+  - `idRastreador` (Guid) - obrigatório
+- **Campos opcionais para Moto:**
+  - `placa` (string) - opcional
+  - `chassi` (string) - opcional
+  - `ativo` (boolean) - padrão: true
+- **Datas automáticas:** `dtCadastro` e `dtAtualizacao` são preenchidas automaticamente pelo sistema
+- **Status Operacionais:** Já vêm populados no seed (Disponível, Em Uso, Manutenção, Indisponível, Reservada)
+- **Versão da API:** Use `/api/v1/` para endpoints gerais e `/api/v2/` para endpoints de ML
+
+### 🧪 Testando no Swagger
+
+1. Acesse `http://localhost:8080/` (Docker) ou `http://localhost:5154/` (desenvolvimento)
+2. Faça login em `/api/v1/Auth/login`
+3. Copie o token retornado
+4. Clique em **"Authorize"** 🔒 e digite: `Bearer {seu-token}`
+5. Execute os endpoints na ordem: Status → Rastreador → Moto → ML
 
 ---
 
@@ -710,18 +1020,13 @@ Consulte **[api/ml-examples.http](api/ml-examples.http)** para exemplos completo
   - ✅ Todos os endpoints protegidos
   - ✅ Campo `perfilId` opcional no registro (perfil padrão automático)
 
-### 🔗 Links Úteis
+### 🔗 URLs Úteis
 
-- **[api/ml-examples.http](api/ml-examples.http)** - Exemplos de uso do ML
-- **[AUTENTICACAO_JWT.md](AUTENTICACAO_JWT.md)** - Documentação completa sobre autenticação
-- **[CHANGELOG_JWT.md](CHANGELOG_JWT.md)** - Histórico de mudanças na autenticação
-- **[api/auth-examples.http](api/auth-examples.http)** - Exemplos práticos de requisições HTTP
-
-**URLs (Docker):**
+**Docker:**
 - **Swagger UI**: `http://localhost:8080/` (⚠️ na raiz, não em `/swagger`)
 - **Health Check**: `http://localhost:8080/health`
 
-**URLs (Desenvolvimento Local):**
+**Desenvolvimento Local:**
 - **Swagger UI**: `http://localhost:5154/` ou `https://localhost:7075/`
 - **Health Check**: `http://localhost:5154/health` ou `https://localhost:7075/health`
 
